@@ -1,0 +1,37 @@
+<html>
+<head>
+  <title>Firebase Login</title>
+  <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700" rel="stylesheet">
+</head>
+<body>
+
+  <div id="login_div" class="main-div">
+    <h3>Brain Training App Admin Panel</h3>
+    <input type="email" placeholder="Email..." id="email_field" />
+    <input type="password" placeholder="Password..." id="password_field" />
+    <button onclick="login()">Log in</button>
+  </div>
+
+  <div id="user_div" class="loggedin-div">
+    <p id="user_para">Welcome to Firebase web login Example. You're currently logged in.</p>
+    <p id="testHeading">?</p>
+    <button onclick="test()">test</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
+
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyBbBMxrZ0FPAiFoLGfR8zeBLX38iQvd_Gk",
+      authDomain: "brain-training-app-81a81.firebaseapp.com",
+      databaseURL: "https://brain-training-app-81a81.firebaseio.com",
+      projectId: "brain-training-app-81a81",
+      storageBucket: "brain-training-app-81a81.appspot.com",
+      messagingSenderId: "743227343146"
+    };
+    firebase.initializeApp(config);
+  </script>
+  <script src="index.js"></script>
+</body>
+</html>
