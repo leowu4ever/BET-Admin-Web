@@ -10,15 +10,25 @@
     <input type="email" placeholder="Email..." id="email_field" />
     <input type="password" placeholder="Password..." id="password_field" />
     <button onclick="login()">Log in</button>
+
   </div>
 
   <div id="user_div" class="loggedin-div">
     <p id="user_para">Welcome to Firebase web login Example. You're currently logged in.</p>
     <p id="testHeading">?</p>
     <button onclick="test()">test</button>
+    <button onclick="getUsers()">get users</button>
+    <button onclick="getRecords()">get records</button>
+  </div>
+
+  <div id="div_users" class="user">
+
+    
+
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
   <script>
     // Initialize Firebase

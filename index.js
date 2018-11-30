@@ -35,9 +35,42 @@ function logout(){
 
 function test() {
   var firebaseRef = firebase.database().ref();
-  firebaseRef.child("lwu@kentacuk/1540846018412/stiTime").on ('value', function(datasnapshot){
+  firebaseRef.child("lwu@kentacuk/1540846018412/stiTime").on('value', function(datasnapshot){
     testHeading.innerText = datasnapshot.val();
   });
 }
 
+function getUsers() {
+  var db = firebase.database();
+  db.ref().once('value', function(snap) {
+    snap.forEach(function(childSnap) {
+      console.log(childSnap.key);
 
+      $('#div_users').append(
+        '<div>' + 
+        '<p>' + childSnap.key + '</p>' + 
+        '<button> test </button>'
+        + '</div>'
+        );
+    });
+  });
+}
+
+function getRecords() {
+  var db = firebase.database();
+  db.ref("/" + "lwu@kentacuk").once('value', function(snap) {
+    snap.forEach(function(childSnap) {
+      console.log(childSnap.key);
+    });
+  });
+}
+
+function getRecordDatails() {
+
+}
+
+function addDisplayUi() {
+
+
+
+}
