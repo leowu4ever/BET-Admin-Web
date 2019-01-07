@@ -80,8 +80,11 @@ function showDetails() {
 
   var date = ($(this).parent().text().replace("Details", "")) + "/"
   urlPfx = urlPfx + date
-  createDetailsTable();
+  createDetailsTable()
   updateDetailsTable()
+
+  createCharts()
+  getDBList()
 }
 
 function updateDetailsTable() {
@@ -203,4 +206,62 @@ function createDetailsTable () {
 
   '</table>' 
   )
+}
+
+function createCharts() {
+  $('#div_users').append(
+    '<canvas id="myChart" width="400" height="400"></canvas>' +
+    '<canvas id="myChart2" width="400" height="400"></canvas>'
+
+  )
+
+  var ctx = document.getElementById('myChart').getContext('2d');
+  var chart = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'line',
+
+    // The data for our dataset
+    data: {
+        labels: ["January", "February", "March", "April", "May", "June", "July"],
+        datasets: [{
+            label: "Speed graph",
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: [0, 10, 5, 2, 20, 30, 45],
+        }]
+    },
+
+    // Configuration options go here
+    options: {
+      responsive: false
+    }
+  });
+
+  var ctx = document.getElementById('myChart2').getContext('2d');
+  var chart = new Chart(ctx, {
+    // The type of chart we want to create
+    type: 'line',
+
+    // The data for our dataset
+    data: {
+        labels: ["January", "February", "March", "April", "May", "June", "July"],
+        datasets: [{
+            label: "Response time graph",
+            backgroundColor: 'rgb(255, 99, 132)',
+            borderColor: 'rgb(255, 99, 132)',
+            data: [0, 10, 5, 2, 20, 30, 45],
+        }]
+    },
+    // Configuration options go here
+    options: {
+      responsive: false
+    }
+  });
+}
+
+function getDBList() {
+  var db = firebase.database()
+  db.ref(urlPfx + "/5_Stimulus Record/4_Stimulus type list").once('value', function(snap) {
+    console.debug(snap.val())
+  })
 }
