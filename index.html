@@ -2,11 +2,13 @@
 <head>
   <title>Firebase Login</title>
   <link href="https://fonts.googleapis.com/css?family=Nunito:400,600,700" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="style.css">
+
 </head>
 <body>
 
   <div id="login_div" class="main-div">
-    <h3>Brain Training App Web Admin Panel</h3>
+    <h1>Brain Training App Web Admin Panel</h1>
     <input type="email" placeholder="Email..." id="email_field" />
     <input type="password" placeholder="Password..." id="password_field" />
     <button onclick="login()">Log in</button>
@@ -14,13 +16,13 @@
   </div>
 
   <div id="user_div" class="loggedin-div">
-    <p id="user_para">Welcome to Firebase web login Example. You're currently logged in.</p>
+    <div id="user_para">Welcome to Firebase web login Example. You're currently logged in.</div>
     <button onclick="getUsers()">Show all users</button>
+    
+    <div id="div_users" class="user"></div>
+
   </div>
 
-  <div id="div_users" class="user">
-
-  </div>
 
   <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
