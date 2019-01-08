@@ -14,7 +14,7 @@ input, button {
 .main-div, .loggedin-div {
   width: 40%;
   margin: 0px auto;
-  margin-top: 150px;
+  margin-top: 0px;
   padding: 20px;
   display: none;
 }
@@ -42,10 +42,11 @@ input, button {
   color: #fff;
   border: 1px solid #5d8ffc;
   border-radius: 5px;
-  padding: 15px;
+  padding: 10px;
   transition: 0.3s;
   -webkit-transition: 0.3s;
   -moz-transition: 0.3s;
+  margin-right: 20px
 }
 
 .main-div button:hover, .loggedin-div button:hover {
@@ -53,4 +54,48 @@ input, button {
   color: #5d8ffc;
   border: 1px solid #5d8ffc;
   cursor: pointer;
+}
+
+hr { 
+  display: block;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em;
+  margin-left: auto;
+  margin-right: auto;
+  border-style: inset;
+  border-width: 1px;
+}
+
+table {
+  width: 100%;
+  border-radius: 5px;
+  border: 1px solid #fff;
+  padding: 5px 10px 5px 10px;
+
+}
+
+td {
+  background:#5d8ffc;
+  color: #fff;
+  border: 1px solid #fff;
+  border-radius: 5px;
+  padding: 5px;
+  text-align: center; 
+  vertical-align: middle;
+  transition: 0.3s;
+  -webkit-transition: 0.3s;
+  -moz-transition: 0.3s;
+}
+
+td:hover {
+  background: #fff;
+  color: #5d8ffc;
+  border: 1px solid #5d8ffc;
+  cursor: pointer;
+}
+
+th {
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid #5d8ffc;
 }

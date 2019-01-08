@@ -8,21 +8,20 @@
 <body>
 
   <div id="login_div" class="main-div">
-    <h1>Brain Training App Web Admin Panel</h1>
+    <h1>Brain Endurance Training Web Admin Panel</h1>
     <input type="email" placeholder="Email..." id="email_field" />
     <input type="password" placeholder="Password..." id="password_field" />
     <button onclick="login()">Log in</button>
-
   </div>
 
   <div id="user_div" class="loggedin-div">
-    <div id="user_para">Welcome to Firebase web login Example. You're currently logged in.</div>
     <button onclick="getUsers()">Show all users</button>
-    
+    <h id="user_para">Login prompt</h>
+    <hr>
+
     <div id="div_users" class="user"></div>
 
   </div>
-
 
   <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>

@@ -10,7 +10,7 @@ firebase.auth().onAuthStateChanged(function(user) {
     var user = firebase.auth().currentUser;
     if(user != null){
       var email_id = user.email
-      document.getElementById("user_para").innerHTML = "You are logged in as : " + email_id
+      document.getElementById("user_para").innerHTML = "Logged in as : " + email_id
     }
 
   } else {
@@ -43,9 +43,9 @@ function getUsers() {
       count = count + 1
       var btnId = "btn_view" + count.toString()
       $('#div_users').append(
-        '<div>' + childSnap.key + 
-        '<button id = ' + btnId + '>View</button>' + 
-        '</div>'
+        '<div>' + 
+          '<button id = ' + btnId + '>View</button>' + 
+        childSnap.key + '</div>'
         )
       $('#' + btnId).click(getRecords)
     })
@@ -66,9 +66,9 @@ function getRecords() {
       var btnId = "btn_detail" + count.toString()
       if(childSnap.key != "storageRef"){ 
         $('#div_users').append(
-          '<div>' + childSnap.key + 
-          '<button id = ' + btnId + '>Details</button>' + 
-          '</div>'
+          '<div>' + 
+            '<button id = ' + btnId + '>Details</button>' +
+          childSnap.key + '</div>'
           )
         $('#' + btnId).click(showDetails)
       }
@@ -173,7 +173,7 @@ function createDetailsTable () {
       '<th>Hits</th>' + 
       '<th>Lapses</th>' + 
       '<th>Accuracy</th>' + 
-      '<th>Avg response time</th>' + 
+      '<th>Average response time</th>' + 
     '</tr>' + 
 
     '<tr>' +
@@ -194,8 +194,8 @@ function createDetailsTable () {
     '</tr>' + 
     '<tr>' + 
       '<th>Distance</th>' +
-      '<th>Avg speed</th>' + 
-      '<th>Avg pace</th>' + 
+      '<th>Average speed</th>' + 
+      '<th>Average pace</th>' + 
     '</tr>' + 
 
     '<tr>' +
@@ -204,14 +204,16 @@ function createDetailsTable () {
       '<td id = "detail_avg_pace"></td>' +
     '</tr>' +
 
-  '</table>' 
+  '</table>' + 
+
+  '<hr>'
   )
 }
 
 function createCharts() {
   $('#div_users').append(
-    '<canvas id="myChart" width="400" height="400"></canvas>' +
-    '<canvas id="myChart2" width="400" height="400"></canvas>'
+    '<canvas id="myChart" style="width: 100%; !important;height: 400 !important;"></canvas>' +
+    '<canvas id="myChart2" style="width: 100% !important;height: 400 !important;"></canvas>'
 
   )
 
@@ -225,8 +227,8 @@ function createCharts() {
         labels: ["January", "February", "March", "April", "May", "June", "July"],
         datasets: [{
             label: "Speed graph",
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgb(93, 143, 252)',
+            backgroundColor: 'rgb(93, 143, 252)',
             data: [0, 10, 5, 2, 20, 30, 45],
         }]
     },
@@ -247,8 +249,8 @@ function createCharts() {
         labels: ["January", "February", "March", "April", "May", "June", "July"],
         datasets: [{
             label: "Response time graph",
-            backgroundColor: 'rgb(255, 99, 132)',
-            borderColor: 'rgb(255, 99, 132)',
+            backgroundColor: 'rgb(93, 143, 252)',
+            backgroundColor: 'rgb(93, 143, 252)',
             data: [0, 10, 5, 2, 20, 30, 45],
         }]
     },
