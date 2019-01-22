@@ -84,6 +84,11 @@ function showDetails() {
   updateDetailsTable()
 
   createCharts()
+  updateCharts()
+
+  createMap()
+  updateMap()
+
   getDBList()
 }
 
@@ -210,10 +215,139 @@ function createDetailsTable () {
   )
 }
 
+var speedChart;
+var ResponseTimeChart;
+function updateCharts(){
+  updateChartsValue("/4_Physical Performance/4_Speed list", speedChart)
+  updateChartsValue("/5_Stimulus Record/Res Time List", ResponseTimeChart)
+}
+
+function updateChartsValue(att, chart){
+  var db = firebase.database()
+  db.ref(urlPfx + att).once('value', function(snap){
+    var dataVal = [];
+    var x_axis = [];
+
+    //Get the data from DB.
+    snap.forEach(function(childSnap){
+      dataVal.push(childSnap.val());
+      x_axis.push("");
+    })
+
+    //Update the graph.
+    chart.data.datasets[0].data = dataVal;
+    chart.data.labels = x_axis;
+    chart.update();
+
+  })
+}
+
+var routeMap;
+function createMap(){
+  $('#div_users').append(
+    '<div id="map" style="width: 600px !important; height: 100% !important;"> </div>'
+  )
+
+  routeMap = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: -34.397, lng: 150.644},
+    zoom: 14,
+    disableDefaultUI: true
+  });
+
+}
+function updateMap(){
+  updateRoute("6_Location/1_Latitude list", "6_Location/2_Longitude list", "4_Physical Performance/4_Speed list", routeMap);
+}
+
+function updateRoute(latAtt, lngAtt, speedAtt, map){
+  var db = firebase.database();
+  var latList = [];
+  var lngList = [];
+  
+  //Get latitude, longitude data from DB.
+  count = 1;
+  var getLatData = function(){
+    return new Promise(function(resolve){
+      db.ref(urlPfx + latAtt).once('value', function(snap){
+        snap.forEach((childSnap)=>{latList.push(parseFloat(childSnap.val()))});
+        resolve();
+      })});
+  }
+  var getLngData = function(){
+    return new Promise(function(resolve){
+      db.ref(urlPfx + lngAtt).once('value', function(snap){
+        snap.forEach((childSnap)=>{lngList.push(parseFloat(childSnap.val()))});
+        resolve();
+      })});
+  }
+
+  getLatData()
+  .then(()=>{return getLngData()})
+  .then(function(){
+    //Make route array of 'google.maps.LatLng'
+    var routePoint = [];
+    for(var i = 0; i < latList.length; i++){
+    routePoint.push({lat:latList[i], lng:lngList[i]});
+    }
+
+    var startPoint = routePoint[0];
+    var startMarker = new google.maps.Marker({
+      position: startPoint,
+      map: map,
+      title: 'START Point',
+      label: {text: 'S', color: '#FFFFFF'}
+    });
+  
+    var endPoint = routePoint[routePoint.length-1];
+    var endMarker = new google.maps.Marker({
+      position: endPoint,
+      map: map,
+      title: 'END Point',
+      label: {text: 'D', color: '#FFFFFF'}
+    });
+  
+    var sectionCnt = 0;
+    db.ref(urlPfx + speedAtt).once('value', function(snap){
+      snap.forEach((childSnap)=>{
+        drawPolyline(map, routePoint[sectionCnt], routePoint[sectionCnt+1], childSnap.val());
+        sectionCnt++;
+      })
+    })
+   
+    //Change center of map.
+    map.setCenter(routePoint[Math.floor(routePoint.length/2)])
+  })
+}
+
+function drawPolyline(map, start, end, speed){
+
+  var color;
+  if(speed > 0 && speed <=2){color = '#FFDECC'}
+  else if(speed > 2 && speed <=4){color = '#FEC2AF'}
+  else if(speed > 4 && speed <=6){color = '#F69E8C'}
+  else if(speed > 6 && speed <=8){color = '#F17E6D'}
+  else if(speed > 8 && speed <=10){color = '#ED6150'}
+  else if(speed > 10 && speed <=12){color = '#D8473B'}
+  else if(speed > 12 && speed <=14){color = '#C22D2A'}
+  else if(speed > 14 && speed <=16){color = '#A61720'}
+  else{color = '#8D031A'}
+
+  var polyline = new google.maps.Polyline({
+    path: [start, end],
+    geodesic: true,
+    strokeColor: color,
+    strokeOpacity: 1.0,
+    strokeWeight: 3
+  });
+  polyline.setMap(map);
+
+}
+
+
 function createCharts() {
   $('#div_users').append(
-    '<canvas id="myChart" style="width: 100%; !important;height: 400 !important;"></canvas>' +
-    '<canvas id="myChart2" style="width: 100% !important;height: 400 !important;"></canvas>'
+    '<canvas id="myChart" style="width: auto !important;height: 400 !important;"></canvas>' +
+    '<canvas id="myChart2" style="width: auto !important;height: 400 !important;"></canvas>'
 
   )
 
@@ -238,6 +372,7 @@ function createCharts() {
       responsive: false
     }
   });
+  speedChart = chart;
 
   var ctx = document.getElementById('myChart2').getContext('2d');
   var chart = new Chart(ctx, {
@@ -259,6 +394,7 @@ function createCharts() {
       responsive: false
     }
   });
+  ResponseTimeChart = chart;
 }
 
 function getDBList() {
