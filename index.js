@@ -245,7 +245,7 @@ function updateChartsValue(att, chart){
 var routeMap;
 function createMap(){
   $('#div_users').append(
-    '<div id="map" style="width: 600px !important; height: 100% !important;"> </div>'
+    '<div id="map" style="width: 800px !important; height: 65% !important;"> </div>'
   )
 
   routeMap = new google.maps.Map(document.getElementById('map'), {
@@ -314,8 +314,13 @@ function updateRoute(latAtt, lngAtt, speedAtt, map){
       })
     })
    
-    //Change center of map.
-    map.setCenter(routePoint[Math.floor(routePoint.length/2)])
+    //Adjust the view of the map appropriately.
+    bounds  = new google.maps.LatLngBounds();
+    bounds.extend(startPoint);
+    bounds.extend(endPoint);
+    
+    map.fitBounds(bounds);      
+    map.panToBounds(bounds, 10000);    
   })
 }
 
