@@ -94,11 +94,14 @@ function showDetails() {
 
 function updateDetailsTable() {
   updateTableRow("/1_User Info/1_Name", "detail_name")
-  updateTableRow("/1_User Info/2_Start time", "detail_start_time")
-  updateTableRow("/1_User Info/3_Time Trained", "detail_duration_trained")
+  updateTableRow("/1_User Info/2_Start time", "detail_start_time",
+    function(x){return formatDate(x, "yyyy-MM-dd hh:mm:ss")})
+  updateTableRow("/1_User Info/3_Time Trained", "detail_duration_trained",
+    function(x){return formatDate(x, "mm:ss")})
 
   updateTableRow("/2_Training Configuration/1_Activity", "detail_activity")
-  updateTableRow("/2_Training Configuration/2_Duration", "detail_duration")
+  updateTableRow("/2_Training Configuration/2_Duration", "detail_duration",
+    function(x){return formatDate(x, "mm:ss")})
   updateTableRow("/2_Training Configuration/3_Task", "detail_cognitive_task")
   updateTableRow("/2_Training Configuration/4_Difficulty level", "detail_task_difficulty")
 
@@ -107,18 +110,24 @@ function updateDetailsTable() {
   updateTableRow("/3_Cognitive Performance/3_Responses", "detail_responses")
   updateTableRow("/3_Cognitive Performance/4_Hits", "detail_hits")
   updateTableRow("/3_Cognitive Performance/5_Lapses", "detail_lapses")
-  updateTableRow("/3_Cognitive Performance/6_Accuracy", "detail_accuracy")
-  updateTableRow("/3_Cognitive Performance/7_Average response time", "detail_avg_response_time")
+  updateTableRow("/3_Cognitive Performance/6_Accuracy", "detail_accuracy",
+    function(x){return x+"%"})
+  updateTableRow("/3_Cognitive Performance/7_Average response time", "detail_avg_response_time",
+    function(x){return x+"ms"})
 
-  updateTableRow("/4_Physical Performance/1_Distance", "detail_distance")
-  updateTableRow("/4_Physical Performance/2_Average speed", "detail_avg_speed")
-  updateTableRow("/4_Physical Performance/3_Average pace", "detail_avg_pace")
+  updateTableRow("/4_Physical Performance/1_Distance", "detail_distance",
+    function(x){return parseFloat(x).toFixed(3)+"km"})
+  updateTableRow("/4_Physical Performance/2_Average speed", "detail_avg_speed",
+    function(x){return parseFloat(x).toFixed(3)+"km/h"})
+  updateTableRow("/4_Physical Performance/3_Average pace", "detail_avg_pace",
+    function(x){return parseFloat(x).toFixed(3)+"min/km"})
 }
 
-function updateTableRow(att, id) {
+function updateTableRow(att, id, processFunc) {
   var db = firebase.database()
   db.ref(urlPfx + att).once('value', function(snap) {
-    document.getElementById(id).innerHTML = snap.val()
+    var data = ((typeof processFunc !== "undefined") ? processFunc(snap.val()) : snap.val());
+    document.getElementById(id).innerHTML = data;
   })
 }
 
@@ -320,7 +329,7 @@ function updateRoute(latAtt, lngAtt, speedAtt, map){
     bounds.extend(endPoint);
     
     map.fitBounds(bounds);      
-    map.panToBounds(bounds, 10000);    
+    map.panToBounds(bounds);    
   })
 }
 
@@ -348,6 +357,18 @@ function drawPolyline(map, start, end, speed){
 
 }
 
+function formatDate(miliseconds, format){
+  var date = new Date(miliseconds);
+  var yyyy = date.getFullYear();
+  var MM = date.getMonth();
+  var dd = date.getDate();
+  var hh = date.getHours();
+  var mm = date.getMinutes();
+  var ss = date.getSeconds();
+
+  return format.replace("yyyy", yyyy).replace("MM", MM).replace("dd", dd)
+    .replace("hh", hh).replace("mm", mm).replace("ss", ss);
+}
 
 function createCharts() {
   $('#div_users').append(
