@@ -56,6 +56,10 @@ input, button {
   cursor: pointer;
 }
 
+.user {
+  width: 100%;
+}
+
 hr { 
   display: block;
   margin-top: 0.5em;

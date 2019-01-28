@@ -31,7 +31,8 @@ function login(){
 }
  
 function logout(){
-  firebase.auth().signOut()
+  firebase.auth().signOut();
+  document.getElementById("password_field").value = "";
 }
 
 function getUsers() {
@@ -239,7 +240,7 @@ function updateChartsValue(att, chart){
 
     //Get the data from DB.
     snap.forEach(function(childSnap){
-      dataVal.push(childSnap.val());
+      dataVal.push(parseFloat(childSnap.val()).toFixed(3));
       x_axis.push("");
     })
 
@@ -254,13 +255,12 @@ function updateChartsValue(att, chart){
 var routeMap;
 function createMap(){
   $('#div_users').append(
-    '<div id="map" style="width: 800px !important; height: 65% !important;"> </div>'
+    '<div id="map" style="width: 100% !important; height: 40% !important;"> </div>'
   )
 
   routeMap = new google.maps.Map(document.getElementById('map'), {
     center: {lat: -34.397, lng: 150.644},
-    zoom: 14,
-    disableDefaultUI: true
+    zoom: 14
   });
 
 }
@@ -296,7 +296,7 @@ function updateRoute(latAtt, lngAtt, speedAtt, map){
     //Make route array of 'google.maps.LatLng'
     var routePoint = [];
     for(var i = 0; i < latList.length; i++){
-    routePoint.push({lat:latList[i], lng:lngList[i]});
+      routePoint.push({lat:latList[i], lng:lngList[i]});
     }
 
     var startPoint = routePoint[0];
@@ -372,8 +372,8 @@ function formatDate(miliseconds, format){
 
 function createCharts() {
   $('#div_users').append(
-    '<canvas id="myChart" style="width: auto !important;height: 400 !important;"></canvas>' +
-    '<canvas id="myChart2" style="width: auto !important;height: 400 !important;"></canvas>'
+    '<canvas id="myChart" style="width: 100% !important;height: 400 !important;"></canvas>' +
+    '<canvas id="myChart2" style="width: 100% !important;height: 400 !important;"></canvas>'
 
   )
 
