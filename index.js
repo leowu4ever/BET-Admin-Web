@@ -95,7 +95,7 @@ function showDetails() {
 
 function updateDetailsTable() {
   updateTableRow("/1_User Info/1_Name", "detail_name")
-  updateTableRow("/1_User Info/2_Start time", "detail_start_time",
+  updateTableRow("/1_User Info/2_Start Time", "detail_start_time",
     function(x){return formatDate(x, "yyyy-MM-dd hh:mm:ss")})
   updateTableRow("/1_User Info/3_Time Trained", "detail_duration_trained",
     function(x){return formatDate(x, "mm:ss")})
@@ -104,7 +104,7 @@ function updateDetailsTable() {
   updateTableRow("/2_Training Configuration/2_Duration", "detail_duration",
     function(x){return formatDate(x, "mm:ss")})
   updateTableRow("/2_Training Configuration/3_Task", "detail_cognitive_task")
-  updateTableRow("/2_Training Configuration/4_Difficulty level", "detail_task_difficulty")
+  updateTableRow("/2_Training Configuration/4_Difficulty Level", "detail_task_difficulty")
 
   updateTableRow("/3_Cognitive Performance/1_Stimulus", "detail_stimulus")
   updateTableRow("/3_Cognitive Performance/2_Nogo", "detail_nogo")
@@ -113,14 +113,14 @@ function updateDetailsTable() {
   updateTableRow("/3_Cognitive Performance/5_Lapses", "detail_lapses")
   updateTableRow("/3_Cognitive Performance/6_Accuracy", "detail_accuracy",
     function(x){return x+"%"})
-  updateTableRow("/3_Cognitive Performance/7_Average response time", "detail_avg_response_time",
+  updateTableRow("/3_Cognitive Performance/7_Average Response Time", "detail_avg_response_time",
     function(x){return x+"ms"})
 
   updateTableRow("/4_Physical Performance/1_Distance", "detail_distance",
     function(x){return parseFloat(x).toFixed(3)+"km"})
-  updateTableRow("/4_Physical Performance/2_Average speed", "detail_avg_speed",
+  updateTableRow("/4_Physical Performance/2_Average Speed", "detail_avg_speed",
     function(x){return parseFloat(x).toFixed(3)+"km/h"})
-  updateTableRow("/4_Physical Performance/3_Average pace", "detail_avg_pace",
+  updateTableRow("/4_Physical Performance/3_Average Pace", "detail_avg_pace",
     function(x){return parseFloat(x).toFixed(3)+"min/km"})
 }
 
@@ -226,30 +226,62 @@ function createDetailsTable () {
 }
 
 var speedChart;
-var ResponseTimeChart;
+var responseTimeChart;
 function updateCharts(){
-  updateChartsValue("/4_Physical Performance/4_Speed list", speedChart)
-  updateChartsValue("/5_Stimulus Record/Res Time List", ResponseTimeChart)
+  updateChartsValue(speedChart, "/4_Physical Performance/4_Speed List", "/4_Physical Performance/5_Location Update Time List")
+  updateChartsValue(responseTimeChart, "/5_Stimulus Record/3_Responses Time List")
 }
 
-function updateChartsValue(att, chart){
-  var db = firebase.database()
-  db.ref(urlPfx + att).once('value', function(snap){
-    var dataVal = [];
-    var x_axis = [];
+function updateChartsValue(chart, yAtt, xAtt){
+  var db = firebase.database();
+  var dataVal = [];
+  var x_axis = [];
 
-    //Get the data from DB.
-    snap.forEach(function(childSnap){
-      dataVal.push(parseFloat(childSnap.val()).toFixed(3));
-      x_axis.push("");
+  //Get data for y-axis from DB. (= Y value)
+  var getYAxisData = function(){
+    return new Promise(function(resolve){
+      db.ref(urlPfx + yAtt).once('value', function(snap){
+        
+        //Apply to the config of chart.
+        snap.forEach((childSnap)=>{
+          dataVal.push(parseFloat(childSnap.val()).toFixed(3));
+        });
+        chart.data.datasets[0].data = dataVal;
+        resolve();
+      })});
+  };
+
+  //Get data for x-axis from DB.
+  var getXAxisData = function(){
+    return new Promise(function(resolve){
+      if(typeof xAtt !== "undefined"){
+        db.ref(urlPfx + xAtt).once('value', function(snap){
+
+          //Apply to the config of chart.
+          snap.forEach((childSnap)=>{
+            x_axis.push(childSnap.val());
+          });
+          if(x_axis.length > 0){x_axis.shift();}
+
+          chart.data.labels = x_axis;
+          resolve();
+        });
+      }else{
+        resolve();
+      }
     })
+  };
 
-    //Update the graph.
-    chart.data.datasets[0].data = dataVal;
-    chart.data.labels = x_axis;
+  getYAxisData()
+  .then(()=>{return getXAxisData()})
+  .then(()=>{
+    if((typeof xAtt !== "undefined")&&(dataVal.length != x_axis.length)){
+      //TO-DO
+      //console.log("# of" + yAtt + " : " + dataVal.length + "\n# of " + xAtt + " : " + x_axis.length);
+    }
     chart.update();
+  });
 
-  })
 }
 
 var routeMap;
@@ -265,7 +297,7 @@ function createMap(){
 
 }
 function updateMap(){
-  updateRoute("6_Location/1_Latitude list", "6_Location/2_Longitude list", "4_Physical Performance/4_Speed list", routeMap);
+  updateRoute("6_Location/1_Latitude List", "6_Location/2_Longitude List", "4_Physical Performance/4_Speed List", routeMap);
 }
 
 function updateRoute(latAtt, lngAtt, speedAtt, map){
@@ -376,7 +408,7 @@ function createCharts() {
     '<canvas id="myChart2" style="width: 100% !important;height: 400 !important;"></canvas>'
 
   )
-
+  
   var ctx = document.getElementById('myChart').getContext('2d');
   var chart = new Chart(ctx, {
     // The type of chart we want to create
@@ -395,9 +427,23 @@ function createCharts() {
 
     // Configuration options go here
     options: {
-      responsive: false
+      responsive: true, 
+      maintainAspectRatio: false,
+      scales: {
+        xAxes: [{
+          display: true
+        }],
+        yAxes: [{
+          ticks: {
+            callback: function(value, index, values){
+              return value + "km/h"
+            }
+          }
+        }]
+      }
     }
   });
+  //chart.resize('400px','400px');
   speedChart = chart;
 
   var ctx = document.getElementById('myChart2').getContext('2d');
@@ -417,15 +463,29 @@ function createCharts() {
     },
     // Configuration options go here
     options: {
-      responsive: false
+      responsive: true, 
+      maintainAspectRatio: false,
+      scales: {
+        xAxes: [{
+          display: false
+        }],
+        yAxes: [{
+          ticks: {
+            callback: function(value, index, values){
+              return value + "ms"
+            }
+          }
+        }]
+      }
     }
   });
-  ResponseTimeChart = chart;
+  //chart.resize();
+  responseTimeChart = chart;
 }
 
 function getDBList() {
   var db = firebase.database()
-  db.ref(urlPfx + "/5_Stimulus Record/4_Stimulus type list").once('value', function(snap) {
+  db.ref(urlPfx + "/5_Stimulus Record/4_Stimulus Type List").once('value', function(snap) {
     console.debug(snap.val())
   })
 }
