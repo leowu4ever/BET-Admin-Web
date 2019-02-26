@@ -287,13 +287,21 @@ function updateChartsValue(chart, yAtt, xAtt){
 var routeMap;
 function createMap(){
   $('#div_users').append(
-    '<div id="map" style="width: 100% !important; height: 40% !important;"> </div>'
+    '<div id="map" style="width: 100% !important; height: 100% !important;"> </div>'
   )
 
-  routeMap = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: -34.397, lng: 150.644},
-    zoom: 14
+  routeMap = L.map(document.getElementById('map'), {
+    center: {lat:-34.397, lng:150.644},
+    zoom: 13,
+    zoomSnap: 2
   });
+
+  L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+    maxZoom: 18,
+    id: 'mapbox.streets',
+    accessToken: 'pk.eyJ1IjoiZG9uZ2dlb25sZWUiLCJhIjoiY2pzbHl2NTl2MGgxejQ5bmRvb25meGR3ayJ9.TVZQjqtGYHH2AzjasBBe4A'
+}).addTo(routeMap);
 
 }
 function updateMap(){
@@ -331,21 +339,28 @@ function updateRoute(latAtt, lngAtt, speedAtt, map){
       routePoint.push({lat:latList[i], lng:lngList[i]});
     }
 
+    
     var startPoint = routePoint[0];
-    var startMarker = new google.maps.Marker({
-      position: startPoint,
-      map: map,
+    var startIcon = L.divIcon({
+      className: 'my-div-icon',
+      html:"<img src='https://img.icons8.com/color/48/000000/marker.png' width=30, height=30>START"});
+    var startMarker = L.marker(startPoint, {
       title: 'START Point',
-      label: {text: 'S', color: '#FFFFFF'}
+      icon: startIcon
+      //label: {text: 'S', color: '#FFFFFF'}
     });
+    startMarker.addTo(map);
   
     var endPoint = routePoint[routePoint.length-1];
-    var endMarker = new google.maps.Marker({
-      position: endPoint,
-      map: map,
+    var endIcon = L.divIcon({
+      className: 'my-div-icon',
+      html:"<img src='https://img.icons8.com/color/48/000000/marker.png' width=30, height=30>END"});
+    var endMarker = L.marker(endPoint, {
       title: 'END Point',
-      label: {text: 'D', color: '#FFFFFF'}
+      icon: endIcon
+      //label: {text: 'D', color: '#FFFFFF'}
     });
+    endMarker.addTo(map);
   
     var sectionCnt = 0;
     db.ref(urlPfx + speedAtt).once('value', function(snap){
@@ -354,14 +369,14 @@ function updateRoute(latAtt, lngAtt, speedAtt, map){
         sectionCnt++;
       })
     })
-   
+
     //Adjust the view of the map appropriately.
-    bounds  = new google.maps.LatLngBounds();
+    bounds = L.latLngBounds();
+
     bounds.extend(startPoint);
     bounds.extend(endPoint);
-    
     map.fitBounds(bounds);      
-    map.panToBounds(bounds);    
+    map.panInsideBounds(bounds);    
   })
 }
 
@@ -378,14 +393,12 @@ function drawPolyline(map, start, end, speed){
   else if(speed > 14 && speed <=16){color = '#A61720'}
   else{color = '#8D031A'}
 
-  var polyline = new google.maps.Polyline({
-    path: [start, end],
-    geodesic: true,
-    strokeColor: color,
-    strokeOpacity: 1.0,
-    strokeWeight: 3
+  var polyline = L.polyline([start, end], {
+    color: color,
+    opacity: 1.0,
+    weight: 3
   });
-  polyline.setMap(map);
+  polyline.addTo(map);
 
 }
 
@@ -443,7 +456,6 @@ function createCharts() {
       }
     }
   });
-  //chart.resize('400px','400px');
   speedChart = chart;
 
   var ctx = document.getElementById('myChart2').getContext('2d');
@@ -479,7 +491,6 @@ function createCharts() {
       }
     }
   });
-  //chart.resize();
   responseTimeChart = chart;
 }
 
