@@ -80,9 +80,13 @@ function getRecords() {
 function showDetails() {
 
   var date = ($(this).parent().text().replace("Details", "")) + "/"
-  urlPfx = urlPfx + date
+  urlPfx = urlPfx + date;
+
+  //This should be done in this order.
   createDetailsTable()
+  createDiv();
   updateDetailsTable()
+  //----------------------------------
 
   createCharts()
   updateCharts()
@@ -95,7 +99,7 @@ function showDetails() {
 
 function updateDetailsTable() {
   updateTableRow("/1_User Info/1_Name", "detail_name")
-  updateTableRow("/1_User Info/2_Start Time", "detail_start_time",
+  updateTableRow("/1_User Info/2_Start time", "detail_start_time",
     function(x){return formatDate(x, "yyyy-MM-dd hh:mm:ss")})
   updateTableRow("/1_User Info/3_Time Trained", "detail_duration_trained",
     function(x){return formatDate(x, "mm:ss")})
@@ -103,7 +107,8 @@ function updateDetailsTable() {
   updateTableRow("/2_Training Configuration/1_Activity", "detail_activity")
   updateTableRow("/2_Training Configuration/2_Duration", "detail_duration",
     function(x){return formatDate(x, "mm:ss")})
-  updateTableRow("/2_Training Configuration/3_Task", "detail_cognitive_task")
+  updateTableRow("/2_Training Configuration/3_Task", "detail_cognitive_task", null,
+    function(){updateElement();})
   updateTableRow("/2_Training Configuration/4_Difficulty Level", "detail_task_difficulty")
 
   updateTableRow("/3_Cognitive Performance/1_Stimulus", "detail_stimulus")
@@ -112,7 +117,7 @@ function updateDetailsTable() {
   updateTableRow("/3_Cognitive Performance/4_Hits", "detail_hits")
   updateTableRow("/3_Cognitive Performance/5_Lapses", "detail_lapses")
   updateTableRow("/3_Cognitive Performance/6_Accuracy", "detail_accuracy",
-    function(x){return x+"%"})
+    function(x){return parseFloat(x).toFixed(1)+"%"})
   updateTableRow("/3_Cognitive Performance/7_Average Response Time", "detail_avg_response_time",
     function(x){return x+"ms"})
 
@@ -124,12 +129,53 @@ function updateDetailsTable() {
     function(x){return parseFloat(x).toFixed(3)+"min/km"})
 }
 
-function updateTableRow(att, id, processFunc) {
+function updateTableRow(att, id, processFunc=null, callback=null) {
   var db = firebase.database()
   db.ref(urlPfx + att).once('value', function(snap) {
-    var data = ((typeof processFunc !== "undefined") ? processFunc(snap.val()) : snap.val());
+    var data = ((processFunc != null) ? processFunc(snap.val()) : snap.val());
     document.getElementById(id).innerHTML = data;
+    if(callback != null) { callback(); }
   })
+}
+
+function updateElement(){
+  var task = (document.getElementById("detail_cognitive_task")).innerHTML;
+  if(task != "GO/NO-GO"){
+    
+    //Hide table cell showing go/no-go count
+    document.getElementById("detail_nogo").style.display = "none";
+    document.getElementById("no_go_title").style.display = "none";
+    
+    console.log("true" + (document.getElementById("detail_cognitive_task")).innerHTML);
+  }
+  if(task == "Visual"){
+    document.getElementById("table_physical_performance").style.display = "none";
+    document.getElementById("map").style.display = "none";
+    document.getElementById("div_speed_graph").style.display = "none";
+  }
+}
+
+function createDiv(){
+
+  $('#div_users').append(
+
+    '<div id="div_speed_graph">' + 
+      '<table id="table_speed_graph" border="1">' +
+       '<tr>' + 
+         '<th colspan="3" align="center">Speed Graph</th>' +
+       '</tr>' + 
+      '</table>' +
+      
+      '<canvas id="myChart" style="width: 100% !important;height: 400 !important;"></canvas>' +  
+    '</div>'
+  )
+  $('#div_users').append(
+    '<canvas id="myChart2" style="width: 100% !important;height: 400 !important;"></canvas>'
+  )
+  $('#div_users').append(
+    '<div id="map" style="width: 100% !important; height: 100% !important;"> </div>'
+  )
+  
 }
 
 function createDetailsTable () {
@@ -144,7 +190,7 @@ function createDetailsTable () {
     '<tr>' + 
       '<th>User</th>' +
       '<th>Start time</th>' + 
-      '<th>Duration trained</th>' + 
+      '<th>Duration trained(mm:ss)</th>' + 
     '</tr>' + 
 
     '<tr>' +
@@ -162,7 +208,7 @@ function createDetailsTable () {
 
     '<tr>' + 
       '<th>Activity</th>' +
-      '<th>Duration</th>' + 
+      '<th>Duration(mm:ss)</th>' + 
       '<th>Cognitive task</th>' + 
       '<th>Task difficulty</th>' + 
     '</tr>' + 
@@ -183,7 +229,7 @@ function createDetailsTable () {
 
     '<tr>' + 
       '<th>Stimulus</th>' +
-      '<th>No-go</th>' +
+      '<th id="no_go_title">No-go</th>' +
       '<th>Responses</th>' + 
       '<th>Hits</th>' + 
       '<th>Lapses</th>' + 
@@ -203,7 +249,7 @@ function createDetailsTable () {
 
   '</table>' +
 
-  '<table border="1">' +
+  '<table id="table_physical_performance" border="1">' +
     '<tr>' + 
       '<th colspan="3" align="center">Physical performance</th>' +
     '</tr>' + 
@@ -266,7 +312,11 @@ function updateChartsValue(chart, yAtt, xAtt){
           chart.data.labels = x_axis;
           resolve();
         });
-      }else{
+      } else {
+        for(let i=0;i<dataVal.length;i++) {
+          x_axis.push(i);
+          chart.data.labels = x_axis;
+        }
         resolve();
       }
     })
@@ -286,12 +336,8 @@ function updateChartsValue(chart, yAtt, xAtt){
 
 var routeMap;
 function createMap(){
-  $('#div_users').append(
-    '<div id="map" style="width: 100% !important; height: 100% !important;"> </div>'
-  )
-
   routeMap = L.map(document.getElementById('map'), {
-    center: {lat:-34.397, lng:150.644},
+    //center: {lat:-34.397, lng:150.644},
     zoom: 13,
     zoomSnap: 2
   });
@@ -301,9 +347,10 @@ function createMap(){
     maxZoom: 18,
     id: 'mapbox.streets',
     accessToken: 'pk.eyJ1IjoiZG9uZ2dlb25sZWUiLCJhIjoiY2pzbHl2NTl2MGgxejQ5bmRvb25meGR3ayJ9.TVZQjqtGYHH2AzjasBBe4A'
-}).addTo(routeMap);
+  }).addTo(routeMap);
 
 }
+
 function updateMap(){
   updateRoute("6_Location/1_Latitude List", "6_Location/2_Longitude List", "4_Physical Performance/4_Speed List", routeMap);
 }
@@ -333,17 +380,17 @@ function updateRoute(latAtt, lngAtt, speedAtt, map){
   getLatData()
   .then(()=>{return getLngData()})
   .then(function(){
-    //Make route array of 'google.maps.LatLng'
+    //Make route array of 'LatLng'
     var routePoint = [];
     for(var i = 0; i < latList.length; i++){
       routePoint.push({lat:latList[i], lng:lngList[i]});
     }
-
+    if(routePoint.length < 1) { return; }
     
     var startPoint = routePoint[0];
     var startIcon = L.divIcon({
       className: 'my-div-icon',
-      html:"<img src='https://img.icons8.com/color/48/000000/marker.png' width=30, height=30>START"});
+      html:"START"});
     var startMarker = L.marker(startPoint, {
       title: 'START Point',
       icon: startIcon
@@ -352,9 +399,11 @@ function updateRoute(latAtt, lngAtt, speedAtt, map){
     startMarker.addTo(map);
   
     var endPoint = routePoint[routePoint.length-1];
+    
     var endIcon = L.divIcon({
       className: 'my-div-icon',
-      html:"<img src='https://img.icons8.com/color/48/000000/marker.png' width=30, height=30>END"});
+      html:"END"
+    });
     var endMarker = L.marker(endPoint, {
       title: 'END Point',
       icon: endIcon
@@ -372,7 +421,6 @@ function updateRoute(latAtt, lngAtt, speedAtt, map){
 
     //Adjust the view of the map appropriately.
     bounds = L.latLngBounds();
-
     bounds.extend(startPoint);
     bounds.extend(endPoint);
     map.fitBounds(bounds);      
@@ -405,7 +453,7 @@ function drawPolyline(map, start, end, speed){
 function formatDate(miliseconds, format){
   var date = new Date(miliseconds);
   var yyyy = date.getFullYear();
-  var MM = date.getMonth();
+  var MM = date.getMonth()+1;
   var dd = date.getDate();
   var hh = date.getHours();
   var mm = date.getMinutes();
@@ -416,12 +464,6 @@ function formatDate(miliseconds, format){
 }
 
 function createCharts() {
-  $('#div_users').append(
-    '<canvas id="myChart" style="width: 100% !important;height: 400 !important;"></canvas>' +
-    '<canvas id="myChart2" style="width: 100% !important;height: 400 !important;"></canvas>'
-
-  )
-  
   var ctx = document.getElementById('myChart').getContext('2d');
   var chart = new Chart(ctx, {
     // The type of chart we want to create
@@ -444,15 +486,23 @@ function createCharts() {
       maintainAspectRatio: false,
       scales: {
         xAxes: [{
-          display: true
+          display: true,
+          ticks: {
+            callback: function(value, index, values){
+              return formatDate(value, "mm:ss");
+            }
+          }
         }],
         yAxes: [{
           ticks: {
             callback: function(value, index, values){
-              return value + "km/h"
+              return parseFloat(value).toFixed(3) + "km/h"
             }
           }
         }]
+      },
+      legend: {
+        display: false
       }
     }
   });
