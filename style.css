@@ -105,6 +105,17 @@ th {
   border: 1px solid #5d8ffc;
 }
 
-.my-div-icon {
 
+.user {
+  position: relative;
+}
+
+.my-div-icon {
+  background:red;
+  border:5px solid rgba(255,255,255,0.5);
+  color:blue;
+  font-weight:bold;
+  text-align:center;
+  border-radius:50%;
+  line-height:30px;
 }
