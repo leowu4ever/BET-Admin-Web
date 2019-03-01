@@ -4,6 +4,7 @@ body {
   margin: 0px auto;
   font-family: 'Nunito', sans-serif;
   font-size: 16px;
+  text-align: center;
 }
 
 input, button {
@@ -12,11 +13,11 @@ input, button {
 }
 
 .main-div, .loggedin-div {
-  width: 40%;
   margin: 0px auto;
   margin-top: 0px;
   padding: 20px;
   display: none;
+  text-align: left;
 }
 
 .main-div input {
@@ -105,9 +106,9 @@ th {
   border: 1px solid #5d8ffc;
 }
 
-
 .user {
   position: relative;
+  display: inline-block;
 }
 
 .my-div-icon {
@@ -118,4 +119,9 @@ th {
   text-align:center;
   border-radius:50%;
   line-height:30px;
+}
+
+#div_speed_graph, #div_response_graph, #div_training_route {
+  width: 700;
+  padding-bottom: 80px;
 }
