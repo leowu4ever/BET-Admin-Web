@@ -4,7 +4,7 @@ var urlPfx = ""
 firebase.auth().onAuthStateChanged(function(user) {
 
   if (user) {
-    document.getElementById("user_div").style.display = "block"
+    document.getElementById("user_div").style.display = "inline-block"
     document.getElementById("login_div").style.display = "none"
 
     var user = firebase.auth().currentUser;
@@ -145,12 +145,10 @@ function updateElement(){
     //Hide table cell showing go/no-go count
     document.getElementById("detail_nogo").style.display = "none";
     document.getElementById("no_go_title").style.display = "none";
-    
-    console.log("true" + (document.getElementById("detail_cognitive_task")).innerHTML);
   }
   if(task == "Visual"){
     document.getElementById("table_physical_performance").style.display = "none";
-    document.getElementById("map").style.display = "none";
+    document.getElementById("div_training_route").style.display = "none";
     document.getElementById("div_speed_graph").style.display = "none";
   }
 }
@@ -159,23 +157,45 @@ function createDiv(){
 
   $('#div_users').append(
 
+    //for speed graph
     '<div id="div_speed_graph">' + 
+
       '<table id="table_speed_graph" border="1">' +
        '<tr>' + 
          '<th colspan="3" align="center">Speed Graph</th>' +
        '</tr>' + 
       '</table>' +
       
-      '<canvas id="myChart" style="width: 100% !important;height: 400 !important;"></canvas>' +  
+      '<canvas id="myChart" style="width: 100% !important;height: 100% !important;"></canvas>' +  
+    
+    '</div>' + 
+    
+    //for response time graph
+    '<div id="div_response_graph">' + 
+
+      '<table id="table_response_graph" border="1">' +
+       '<tr>' + 
+         '<th colspan="3" align="center">Response Time Graph</th>' +
+       '</tr>' + 
+      '</table>' +
+      
+      '<canvas id="myChart2" style="width: 100% !important;height: 100% !important;"></canvas>' +  
+    
+    '</div>' +
+
+    //for training route map
+    '<div id="div_training_route">' + 
+
+      '<table id="table_training_route" border="1">' +
+       '<tr>' + 
+         '<th colspan="3" align="center">Training Route</th>' +
+       '</tr>' + 
+      '</table>' +
+      
+      '<div id="map" style="width: 100% !important; height: 100% !important;"> </div>' +  
+
     '</div>'
   )
-  $('#div_users').append(
-    '<canvas id="myChart2" style="width: 100% !important;height: 400 !important;"></canvas>'
-  )
-  $('#div_users').append(
-    '<div id="map" style="width: 100% !important; height: 100% !important;"> </div>'
-  )
-  
 }
 
 function createDetailsTable () {
@@ -267,18 +287,20 @@ function createDetailsTable () {
 
   '</table>' + 
 
-  '<hr>'
+  '<hr>' +
+
+  '<br><br>'
   )
 }
 
 var speedChart;
 var responseTimeChart;
 function updateCharts(){
-  updateChartsValue(speedChart, "/4_Physical Performance/4_Speed List", "/4_Physical Performance/5_Location Update Time List")
-  updateChartsValue(responseTimeChart, "/5_Stimulus Record/3_Responses Time List")
+  updateChartsValue(speedChart, "/4_Physical Performance/4_Speed List", "/4_Physical Performance/5_Location Update Time List", true)
+  updateChartsValue(responseTimeChart, "/5_Stimulus Record/3_Responses Time List", "/5_Stimulus Record/2_Responses Mili List")
 }
 
-function updateChartsValue(chart, yAtt, xAtt){
+function updateChartsValue(chart, yAtt, xAtt, isIntervalData=false){
   var db = firebase.database();
   var dataVal = [];
   var x_axis = [];
@@ -307,7 +329,8 @@ function updateChartsValue(chart, yAtt, xAtt){
           snap.forEach((childSnap)=>{
             x_axis.push(childSnap.val());
           });
-          if(x_axis.length > 0){x_axis.shift();}
+
+          if(isIntervalData && x_axis.length > 0){x_axis.shift();}
 
           chart.data.labels = x_axis;
           resolve();
@@ -327,6 +350,7 @@ function updateChartsValue(chart, yAtt, xAtt){
   .then(()=>{
     if((typeof xAtt !== "undefined")&&(dataVal.length != x_axis.length)){
       //TO-DO
+      console.log("The number of x-data does not match y-data.")
       //console.log("# of" + yAtt + " : " + dataVal.length + "\n# of " + xAtt + " : " + x_axis.length);
     }
     chart.update();
@@ -529,7 +553,12 @@ function createCharts() {
       maintainAspectRatio: false,
       scales: {
         xAxes: [{
-          display: false
+          display: true,
+          ticks: {
+            callback: function(value, index, values){
+              return formatDate(value, "mm:ss");
+            }
+          }
         }],
         yAxes: [{
           ticks: {
@@ -538,6 +567,9 @@ function createCharts() {
             }
           }
         }]
+      },
+      legend: {
+        display: false
       }
     }
   });
