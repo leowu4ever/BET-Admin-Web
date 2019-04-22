@@ -332,6 +332,9 @@ function updateChartsValue(chart, yAtt, xAtt, isIntervalData=false){
 
           if(isIntervalData && x_axis.length > 0){x_axis.shift();}
 
+          var startTime = x_axis[0];
+          x_axis = x_axis.map(x=>x-startTime);
+
           chart.data.labels = x_axis;
           resolve();
         });
@@ -519,6 +522,7 @@ function createCharts() {
         }],
         yAxes: [{
           ticks: {
+            beginAtZero: true,
             callback: function(value, index, values){
               return parseFloat(value).toFixed(3) + "km/h"
             }
@@ -562,6 +566,7 @@ function createCharts() {
         }],
         yAxes: [{
           ticks: {
+            beginAtZero: true,
             callback: function(value, index, values){
               return value + "ms"
             }
