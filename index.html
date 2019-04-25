@@ -5,7 +5,7 @@
   <link rel="stylesheet" type="text/css" href="style.css">
 
 </head>
-<body>
+<body>  
 
   <div id="login_div" class="main-div">
     <h1>Brain Endurance Training Web Admin Panel</h1>
@@ -16,11 +16,13 @@
 
   <div id="user_div" class="loggedin-div">
     <button onclick="getUsers()">Show all users</button>
+    <button onclick="showRankingForm()">Ranking</button>
     <button onclick="logout()">Logout</button>
     <h id="user_para">Login prompt</h>
     <hr>
 
-    <div id="div_users" class="user"></div>
+    <div id="div_users" class="user">
+    </div>
 
   </div>
 

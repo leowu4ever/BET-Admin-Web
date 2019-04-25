@@ -44,7 +44,7 @@ function getUsers() {
       count = count + 1
       var btnId = "btn_view" + count.toString()
       $('#div_users').append(
-        '<div>' + 
+        '<div style="padding-top: 5px">' + 
           '<button id = ' + btnId + '>View</button>' + 
         childSnap.key + '</div>'
         )
@@ -67,7 +67,7 @@ function getRecords() {
       var btnId = "btn_detail" + count.toString()
       if(childSnap.key != "storageRef"){ 
         $('#div_users').append(
-          '<div>' + 
+          '<div style="padding-top: 5px">' + 
             '<button id = ' + btnId + '>Details</button>' +
           childSnap.key + '</div>'
           )
@@ -586,4 +586,96 @@ function getDBList() {
   db.ref(urlPfx + "/5_Stimulus Record/4_Stimulus Type List").once('value', function(snap) {
     console.debug(snap.val())
   })
+}
+
+function showRankingForm() {
+  $('#div_users').empty()
+  $('#div_users').append(
+    '<div style="padding-top: 5px">' +
+      '<span style="padding-right: 5px">From</span>' +
+      '<input type="date" id="ranking_from_date" value="2018-01-01" min="2018-01-01" max="2020-12-31">' +
+      
+      '<span style="padding-right: 5px; padding-left: 10px">To</span>' +
+      '<input type="date" id="ranking_to_date" value="2018-01-01" min="2018-01-01" max="2020-12-31">' +
+
+      '<div style="display: inline-block; padding-left: 10px">' +
+        '<form >' +
+          '<select name = "dropdown">' +
+            '<option >APVT</option>' +
+            '<option >GO/NO-GO</option>' + 
+            '<option >Visual</option>' +
+          '</select>' + 
+        '</form>' +
+      '</div>' + 
+      
+      '<div style="display: inline-block; padding-left: 10px"><button onclick="rankUsers()">Rank</button></div>' +
+    '</div>'+
+
+    '<div id=ranking_users_div></div>' +
+    '<hr>' +
+
+    '<div id=ranking_table></div>'
+  )
+
+  var db = firebase.database()
+  db.ref().once('value', function(snap) {
+    snap.forEach(function(childSnap) {
+      $('#ranking_users_div').append('<div><input type="checkbox" name="vehicle">' +
+        childSnap.key + '</div>'
+        )
+    })
+  })
+}
+
+function rankUsers() {
+  // loop through all selected users
+  // find matched date range and task
+  // $('#div_users').empty()
+  // var user = ($(this).parent().text().replace("View", "")) + "/"
+  // urlPfx = ""
+  // urlPfx = user
+  // //console.debug(urlPfx)
+  // var count = 0
+  // var db = firebase.database()
+  // db.ref("/" + user).once('value', function(snap) {
+  //   snap.forEach(function(childSnap) {
+  //     count = count + 1
+  //     var btnId = "btn_detail" + count.toString()
+  //     if(childSnap.key != "storageRef"){ 
+  //       $('#div_users').append(
+  //         '<div style="padding-top: 5px">' + 
+  //           '<button id = ' + btnId + '>Details</button>' +
+  //         childSnap.key + '</div>'
+  //         )
+  //       $('#' + btnId).click(showDetails)
+  //     }
+  //   })
+  // })
+
+  // var db = firebase.database()
+  // db.ref(urlPfx + att).once('value', function(snap) {
+  //   var data = ((processFunc != null) ? processFunc(snap.val()) : snap.val());
+  //   document.getElementById(id).innerHTML = data;
+  //   if(callback != null) { callback(); }
+  // })
+
+  $('#ranking_table').empty()
+  $('#ranking_table').append(
+
+  '<table border="1">' +
+    '<tr>' + 
+      '<th colspan="8" align="center">Ranking of performance</th>' +
+    '</tr>' + 
+      
+    '<tr>' + 
+      '<th>Rank</th>' +
+      '<th>User</th>' +
+      '<th>Score</th>' + 
+      '<th>Accuracy</th>' + 
+      '<th>Avg RT</th>' +
+      '<th>Avg speed</th>' + 
+      '<th>Avg pace</th>' + 
+      '<th>Distance</th>' +
+    '</tr>'
+    )
 }
