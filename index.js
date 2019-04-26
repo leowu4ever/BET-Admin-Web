@@ -596,11 +596,11 @@ function showRankingForm() {
       '<input type="date" id="ranking_from_date" value="2018-01-01" min="2018-01-01" max="2020-12-31">' +
       
       '<span style="padding-right: 5px; padding-left: 10px">To</span>' +
-      '<input type="date" id="ranking_to_date" value="2018-01-01" min="2018-01-01" max="2020-12-31">' +
+      '<input type="date" id="ranking_to_date" value="2018-01-02" min="2018-01-01" max="2020-12-31">' +
 
       '<div style="display: inline-block; padding-left: 10px">' +
         '<form >' +
-          '<select name = "dropdown">' +
+          '<select id="task_dropdown" name = "dropdown">' +
             '<option >APVT</option>' +
             '<option >GO/NO-GO</option>' + 
             '<option >Visual</option>' +
@@ -620,45 +620,21 @@ function showRankingForm() {
   var db = firebase.database()
   db.ref().once('value', function(snap) {
     snap.forEach(function(childSnap) {
-      $('#ranking_users_div').append('<div><input type="checkbox" name="vehicle">' +
-        childSnap.key + '</div>'
-        )
+      $('#ranking_users_div').append('<input type="checkbox" name="' + childSnap.key+ '">' +
+        childSnap.key + '<br>')
     })
   })
 }
 
 function rankUsers() {
-  // loop through all selected users
-  // find matched date range and task
-  // $('#div_users').empty()
-  // var user = ($(this).parent().text().replace("View", "")) + "/"
-  // urlPfx = ""
-  // urlPfx = user
-  // //console.debug(urlPfx)
-  // var count = 0
-  // var db = firebase.database()
-  // db.ref("/" + user).once('value', function(snap) {
-  //   snap.forEach(function(childSnap) {
-  //     count = count + 1
-  //     var btnId = "btn_detail" + count.toString()
-  //     if(childSnap.key != "storageRef"){ 
-  //       $('#div_users').append(
-  //         '<div style="padding-top: 5px">' + 
-  //           '<button id = ' + btnId + '>Details</button>' +
-  //         childSnap.key + '</div>'
-  //         )
-  //       $('#' + btnId).click(showDetails)
-  //     }
-  //   })
-  // })
-
-  // var db = firebase.database()
-  // db.ref(urlPfx + att).once('value', function(snap) {
-  //   var data = ((processFunc != null) ? processFunc(snap.val()) : snap.val());
-  //   document.getElementById(id).innerHTML = data;
-  //   if(callback != null) { callback(); }
-  // })
-
+  // date
+  // users
+  // task
+  
+  // get ranking users div
+  // loop through its children
+  // get the selected and save it in an array
+  // do firebase query
   $('#ranking_table').empty()
   $('#ranking_table').append(
 
@@ -678,4 +654,43 @@ function rankUsers() {
       '<th>Distance</th>' +
     '</tr>'
     )
+
+    userSelected = getUserSelected()
+    startDateSelected = getStartDateSelected()
+    endDateSelected = getEndDateSelected()
+    taskSelected = getTaskSelected()
+
+    var playersRef = firebase.database().ref("players/")
+    playersRef.orderByChild("name").on("child_added", function(data) {
+      console.log(data.val().name);
+    });
+
+}
+
+
+function getUserSelected() {
+  userSelected = []
+  userCount = document.getElementById("ranking_users_div").children.length
+
+  for (var i = 0; i<userCount; i++) {
+    var name = document.getElementById("ranking_users_div").children[i].name
+    if(name !== undefined) {
+      userSelected.push(name)
+    }
+  }
+  return userSelected
+}
+
+function getStartDateSelected() {
+  return document.getElementById("ranking_from_date").value
+}
+
+function getEndDateSelected() {
+  return document.getElementById("ranking_to_date").value
+}
+
+function getTaskSelected() {
+  indexSelected = document.getElementById("task_dropdown").selectedIndex
+  taskSelected = document.getElementById("task_dropdown").options[indexSelected].value
+  return taskSelected
 }
