@@ -597,7 +597,7 @@ function showRankingForm() {
       '<input type="date" id="ranking_from_date" value="2018-01-01" min="2018-01-01" max="2020-12-31">' +
       
       '<span style="padding-right: 5px; padding-left: 10px">To</span>' +
-      '<input type="date" id="ranking_to_date" value="2018-01-02" min="2018-01-01" max="2020-12-31">' +
+      '<input type="date" id="ranking_to_date" value="2019-04-02" min="2018-01-01" max="2020-12-31">' +
 
       '<div style="display: inline-block; padding-left: 10px">' +
         '<form >' +
@@ -628,27 +628,6 @@ function showRankingForm() {
 }
 
 function rankUsers() {
-
-  $('#ranking_table').empty()
-  $('#ranking_table').append(
-
-  '<table border="1">' +
-    '<tr>' + 
-      '<th colspan="8" align="center">Ranking of performance</th>' +
-    '</tr>' + 
-      
-    '<tr>' + 
-      '<th>Rank</th>' +
-      '<th>User</th>' +
-      '<th>Score</th>' + 
-      '<th>Accuracy</th>' + 
-      '<th>Avg RT</th>' +
-      '<th>Avg speed</th>' + 
-      '<th>Avg pace</th>' + 
-      '<th>Distance</th>' +
-    '</tr>'
-    )
-    
   userSelected = getUserSelected()
   startDateSelected = getStartDateSelected()
   endDateSelected = getEndDateSelected()
@@ -666,7 +645,6 @@ function rankUsers() {
         } else {
           if(i == userSelected.length-1) {
             var filteredRefs = filterRefs(refsOfUserAndDate, startDateSelected, endDateSelected, taskSelected)
-            UpdateRankingForm(filteredRefs)
           }
         }
       })
@@ -693,7 +671,7 @@ function filterRefs(refsOfUserAndDate, startDateSelected, endDateSelected, taskS
       if(i == refsOfUserAndDate.length-1) {
         for(let j = 0; j<refsFilteredWithTask.length; j++) {
           
-          var ref = db.ref(refsFilteredWithTask[j]).child('1_User Info/2_Start time')
+          var ref = db.ref(refsFilteredWithTask[j]).child('/1_User Info/2_Start time')
           ref.once('value', function(snap) {
             
             if(snap.val() >= startDateMili && snap.val() <= endDateMili) {
@@ -702,17 +680,68 @@ function filterRefs(refsOfUserAndDate, startDateSelected, endDateSelected, taskS
 
             if(j == refsFilteredWithTask.length-1) {
               console.log(refsFilteredWithDate)
+              updateRankingForm(refsFilteredWithDate)
             }
           })  
         }
       }
     })
   }
-  return refsFilteredWithDate
 }
 
-function updateRankingForm(filteredRefs) {
+function updateRankingForm(filterRefs) {
+  $('#ranking_table').empty()
+  $('#ranking_table').append(
+  '<table border="1">' +
+    '<tr>' + 
+      '<th colspan="8" align="center">Ranking of performance</th>' +
+    '</tr>' + 
+      
+    '<tr>' + 
+      '<th>Rank</th>' +
+      '<th>User</th>' +
+      '<th>Score</th>' + 
+      '<th>Accuracy</th>' + 
+      '<th>Avg RT</th>' +
+    '</tr>')
   
+  for (let i = 0; i<filterRefs.length; i++) {
+    $('#ranking_table').append(
+      '<tr>' +
+      '<td>' + (i+1) +'</td>' +
+      '<td id =' + (filterRefs[i]+('/1_User Info/1_Name').replace(/ +/g, "")) + '></td>' +
+      '<td id =' + (filterRefs[i]+ 'score') + '></td>' +
+      '<td id =' + (filterRefs[i]+('/3_Cognitive Performance/6_Accuracy').replace(/ +/g, "")) + '></td>' +
+      '<td id =' + (filterRefs[i]+('/3_Cognitive Performance/7_Average Response Time').replace(/ +/g, "")) + '></td>' +
+      '</tr>')
+    
+    UpdateTableWithAttrWithRef(filterRefs[i], '/1_User Info/1_Name', '')
+    UpdateTableWithAttrWithRef(filterRefs[i], '/3_Cognitive Performance/6_Accuracy', '%')
+    UpdateTableWithAttrWithRef(filterRefs[i], '/3_Cognitive Performance/7_Average Response Time', 'ms')
+
+    if(i == filterRefs.length-1) {
+      $('#ranking_table').append('<table border="1">')
+    }
+  }
+}
+
+function UpdateTableWithAttrWithRef(prefix, attr, unit) {
+  var db = firebase.database()
+  var ref = db.ref(prefix).child(attr)
+  ref.once('value', function(snap) {
+    document.getElementById(prefix + (attr.replace(/ +/g, ""))).innerHTML = snap.val() + unit
+
+    if(attr == '/3_Cognitive Performance/7_Average Response Time') {
+      var ref = db.ref(prefix).child('/3_Cognitive Performance/6_Accuracy')
+      ref.once('value', function(accSnap) {
+        if(parseInt(snap.val()) == 0) {
+          document.getElementById(prefix+'score').innerHTML = "invalid"
+        } else {
+          document.getElementById(prefix+'score').innerHTML = parseInt(accSnap.val()) * 1000 / parseInt(snap.val())
+        }
+      })
+    }
+  })
 }
 
 function getUserSelected() {
