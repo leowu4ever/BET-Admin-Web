@@ -589,6 +589,7 @@ function getDBList() {
 }
 
 function showRankingForm() {
+
   $('#div_users').empty()
   $('#div_users').append(
     '<div style="padding-top: 5px">' +
@@ -601,7 +602,7 @@ function showRankingForm() {
       '<div style="display: inline-block; padding-left: 10px">' +
         '<form >' +
           '<select id="task_dropdown" name = "dropdown">' +
-            '<option >APVT</option>' +
+            '<option >A-PVT</option>' +
             '<option >GO/NO-GO</option>' + 
             '<option >Visual</option>' +
           '</select>' + 
@@ -621,20 +622,13 @@ function showRankingForm() {
   db.ref().once('value', function(snap) {
     snap.forEach(function(childSnap) {
       $('#ranking_users_div').append('<input type="checkbox" name="' + childSnap.key+ '">' +
-        childSnap.key + '<br>')
+        '   ' + childSnap.key + '<br>')
     })
   })
 }
 
 function rankUsers() {
-  // date
-  // users
-  // task
-  
-  // get ranking users div
-  // loop through its children
-  // get the selected and save it in an array
-  // do firebase query
+
   $('#ranking_table').empty()
   $('#ranking_table').append(
 
@@ -654,19 +648,72 @@ function rankUsers() {
       '<th>Distance</th>' +
     '</tr>'
     )
+    
+  userSelected = getUserSelected()
+  startDateSelected = getStartDateSelected()
+  endDateSelected = getEndDateSelected()
+  taskSelected = getTaskSelected()
 
-    userSelected = getUserSelected()
-    startDateSelected = getStartDateSelected()
-    endDateSelected = getEndDateSelected()
-    taskSelected = getTaskSelected()
+  var refsOfUserAndDate = []
+  var db = firebase.database()
 
-    var playersRef = firebase.database().ref("players/")
-    playersRef.orderByChild("name").on("child_added", function(data) {
-      console.log(data.val().name);
-    });
-
+  for (let i = 0; i<userSelected.length; i++) {
+    var ref = db.ref(userSelected[i])
+    ref.once('value', function(snap) {
+      snap.forEach(function(childSnap) {
+        if(childSnap.key !== "storageRef") {
+          refsOfUserAndDate.push('/' + snap.key + '/' + childSnap.key)
+        } else {
+          if(i == userSelected.length-1) {
+            var filteredRefs = filterRefs(refsOfUserAndDate, startDateSelected, endDateSelected, taskSelected)
+            UpdateRankingForm(filteredRefs)
+          }
+        }
+      })
+    })
+  }
 }
 
+function filterRefs(refsOfUserAndDate, startDateSelected, endDateSelected, taskSelected ) {
+  var refsFilteredWithTask = []
+  var refsFilteredWithDate = []
+
+  var startDateMili = new Date(startDateSelected).getTime()
+  var endDateMili = new Date(endDateSelected).getTime()
+
+  var db = firebase.database()
+  for (let i = 0; i<refsOfUserAndDate.length; i++) {
+
+    var ref = db.ref(refsOfUserAndDate[i]).child('/2_Training Configuration/3_Task')
+    ref.once('value', function(snap) {
+      if(snap.val() == taskSelected) {
+        refsFilteredWithTask.push(refsOfUserAndDate[i])
+      }
+
+      if(i == refsOfUserAndDate.length-1) {
+        for(let j = 0; j<refsFilteredWithTask.length; j++) {
+          
+          var ref = db.ref(refsFilteredWithTask[j]).child('1_User Info/2_Start time')
+          ref.once('value', function(snap) {
+            
+            if(snap.val() >= startDateMili && snap.val() <= endDateMili) {
+              refsFilteredWithDate.push(refsFilteredWithTask[j])
+            }
+
+            if(j == refsFilteredWithTask.length-1) {
+              console.log(refsFilteredWithDate)
+            }
+          })  
+        }
+      }
+    })
+  }
+  return refsFilteredWithDate
+}
+
+function updateRankingForm(filteredRefs) {
+  
+}
 
 function getUserSelected() {
   userSelected = []
@@ -675,7 +722,9 @@ function getUserSelected() {
   for (var i = 0; i<userCount; i++) {
     var name = document.getElementById("ranking_users_div").children[i].name
     if(name !== undefined) {
-      userSelected.push(name)
+      if(document.getElementById("ranking_users_div").children[i].checked) {
+        userSelected.push("/" + name)
+      }
     }
   }
   return userSelected
