@@ -38,7 +38,7 @@ input, button {
   border: 1px solid #777;
 }
 
-.main-div button, .loggedin-div button {
+.main-div button, .loggedin-div button, .navbar button {
   background: #5d8ffc;
   color: #fff;
   border: 1px solid #5d8ffc;
@@ -50,7 +50,7 @@ input, button {
   margin-right: 20px
 }
 
-.main-div button:hover, .loggedin-div button:hover {
+.main-div button:hover, .loggedin-div button:hover, .navbar button:hover {
   background: #fff;
   color: #5d8ffc;
   border: 1px solid #5d8ffc;
@@ -109,6 +109,7 @@ th {
 .user {
   position: relative;
   display: inline-block;
+  margin-top:60px
 }
 
 .my-div-icon {
@@ -125,3 +126,21 @@ th {
   width: 700;
   padding-bottom: 80px;
 }
+
+.navbar {
+  z-index: 1;
+  text-align: center;
+  padding-top: 10px;
+  padding-bottom: 5px;
+  background-color:#fff;
+  position: fixed; /* Set the navbar to fixed position */
+  top: 0; /* Position the navbar at the top of the page */
+  width: 100%; /* Full width */
+  display: none;
+}
+
+.nav_content{
+  width:40%;
+  display: inline-block;
+}
+
