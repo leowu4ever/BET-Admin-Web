@@ -642,8 +642,6 @@ function rankUsers() {
       snap.forEach(function(childSnap) {
         if(childSnap.key !== "storageRef") {
           refsOfUserAndDate.push('/' + snap.key + '/' + childSnap.key)
-        } else {
-          
         }
       })
       if(i == userSelected.length-1) {
@@ -702,10 +700,10 @@ function updateRankingForm(filterRefs) {
       htmlTableAttrRow = htmlTableAttrRow + 
       '<tr>' +
         '<td>' + (i+1) +'</td>' +
-        '<td id =' + (arySortedAttr[i].ref+('/1_User Info/1_Name').replace(/ +/g, "")) + '></td>' +
-        '<td id =' + (arySortedAttr[i].ref+ 'score') + '></td>' +
-        '<td id =' + (arySortedAttr[i].ref+('/3_Cognitive Performance/6_Accuracy').replace(/ +/g, "")) + '></td>' +
-        '<td id =' + (arySortedAttr[i].ref+('/3_Cognitive Performance/7_Average Response Time').replace(/ +/g, "")) + '></td>' +
+        '<td id =' + (arySortedAttr[i].ref + 'userName') + '></td>' +
+        '<td id =' + (arySortedAttr[i].ref + 'score') + '></td>' +
+        '<td id =' + (arySortedAttr[i].ref + 'accuracy') + '></td>' +
+        '<td id =' + (arySortedAttr[i].ref + 'resTime') + '></td>' +
         '</tr>'
     }
 
@@ -732,10 +730,10 @@ function updateRankingForm(filterRefs) {
 
     //fill the ranking table
     for(let i=0; i<arySortedAttr.length; i++){
-      document.getElementById(arySortedAttr[i].ref+('/1_User Info/1_Name').replace(/ +/g, "")).innerHTML = arySortedAttr[i].userName;
-      document.getElementById(arySortedAttr[i].ref+ 'score').innerHTML = arySortedAttr[i].score;
-      document.getElementById(arySortedAttr[i].ref+('/3_Cognitive Performance/6_Accuracy').replace(/ +/g, "")).innerHTML = arySortedAttr[i].accuracy;
-      document.getElementById(arySortedAttr[i].ref+('/3_Cognitive Performance/7_Average Response Time').replace(/ +/g, "")).innerHTML = arySortedAttr[i].resTime;
+      document.getElementById(arySortedAttr[i].ref + 'userName').innerHTML = arySortedAttr[i].userName;
+      document.getElementById(arySortedAttr[i].ref + 'score').innerHTML = arySortedAttr[i].score;
+      document.getElementById(arySortedAttr[i].ref + 'accuracy').innerHTML = arySortedAttr[i].accuracy;
+      document.getElementById(arySortedAttr[i].ref + 'resTime').innerHTML = arySortedAttr[i].resTime;
     }
     });
 }
@@ -744,7 +742,6 @@ function SortAttr(unsortedAttr){
   return unsortedAttr.sort(function(a,b){
     return b.score - a.score;
   });
-
 }
 
 function GetAttrWithRef(prefixs){
