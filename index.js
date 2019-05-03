@@ -502,7 +502,8 @@ function createCharts() {
         datasets: [{
             label: "Speed graph",
             backgroundColor: 'rgb(93, 143, 252)',
-            backgroundColor: 'rgb(93, 143, 252)',
+            borderColor:'rgb(93, 143, 252)',
+            fill:false,
             data: [0, 10, 5, 2, 20, 30, 45],
         }]
     },
@@ -524,7 +525,7 @@ function createCharts() {
           ticks: {
             beginAtZero: true,
             callback: function(value, index, values){
-              return parseFloat(value).toFixed(3) + "km/h"
+              return parseFloat(value).toFixed(3)
             }
           }
         }]
@@ -547,7 +548,8 @@ function createCharts() {
         datasets: [{
             label: "Response time graph",
             backgroundColor: 'rgb(93, 143, 252)',
-            backgroundColor: 'rgb(93, 143, 252)',
+            borderColor:'rgb(93, 143, 252)',
+            fill:false,
             data: [0, 10, 5, 2, 20, 30, 45],
         }]
     },
@@ -567,9 +569,7 @@ function createCharts() {
         yAxes: [{
           ticks: {
             beginAtZero: true,
-            callback: function(value, index, values){
-              return value + "ms"
-            }
+            //callback: function(value, index, values){ return value + "ms"}
           }
         }]
       },
