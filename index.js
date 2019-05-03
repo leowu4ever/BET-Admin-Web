@@ -448,8 +448,7 @@ function updateRoute(latAtt, lngAtt, speedAtt, map){
 
     //Adjust the view of the map appropriately.
     bounds = L.latLngBounds();
-    bounds.extend(startPoint);
-    bounds.extend(endPoint);
+    routePoint.forEach((point)=>{bounds.extend(point)})
     map.fitBounds(bounds);      
     map.panInsideBounds(bounds);    
   })
