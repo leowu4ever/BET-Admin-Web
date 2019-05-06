@@ -6,6 +6,7 @@ firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
     document.getElementById("user_div").style.display = "inline-block"
     document.getElementById("login_div").style.display = "none"
+    document.getElementById("navigation_bar").style.display = "block"
 
     var user = firebase.auth().currentUser;
     if(user != null){
@@ -15,6 +16,7 @@ firebase.auth().onAuthStateChanged(function(user) {
 
   } else {
     document.getElementById("user_div").style.display = "none"
+    document.getElementById("navigation_bar").style.display = "none"
     document.getElementById("login_div").style.display = "block"
   }
 });
@@ -448,8 +450,7 @@ function updateRoute(latAtt, lngAtt, speedAtt, map){
 
     //Adjust the view of the map appropriately.
     bounds = L.latLngBounds();
-    bounds.extend(startPoint);
-    bounds.extend(endPoint);
+    routePoint.forEach((point)=>{bounds.extend(point)})
     map.fitBounds(bounds);      
     map.panInsideBounds(bounds);    
   })
@@ -502,7 +503,8 @@ function createCharts() {
         datasets: [{
             label: "Speed graph",
             backgroundColor: 'rgb(93, 143, 252)',
-            backgroundColor: 'rgb(93, 143, 252)',
+            borderColor:'rgb(93, 143, 252)',
+            fill:false,
             data: [0, 10, 5, 2, 20, 30, 45],
         }]
     },
@@ -524,7 +526,7 @@ function createCharts() {
           ticks: {
             beginAtZero: true,
             callback: function(value, index, values){
-              return parseFloat(value).toFixed(3) + "km/h"
+              return parseFloat(value).toFixed(3)
             }
           }
         }]
@@ -547,7 +549,8 @@ function createCharts() {
         datasets: [{
             label: "Response time graph",
             backgroundColor: 'rgb(93, 143, 252)',
-            backgroundColor: 'rgb(93, 143, 252)',
+            borderColor:'rgb(93, 143, 252)',
+            fill:false,
             data: [0, 10, 5, 2, 20, 30, 45],
         }]
     },
@@ -567,9 +570,7 @@ function createCharts() {
         yAxes: [{
           ticks: {
             beginAtZero: true,
-            callback: function(value, index, values){
-              return value + "ms"
-            }
+            //callback: function(value, index, values){ return value + "ms"}
           }
         }]
       },
@@ -642,12 +643,11 @@ function rankUsers() {
       snap.forEach(function(childSnap) {
         if(childSnap.key !== "storageRef") {
           refsOfUserAndDate.push('/' + snap.key + '/' + childSnap.key)
-        } else {
-          if(i == userSelected.length-1) {
-            var filteredRefs = filterRefs(refsOfUserAndDate, startDateSelected, endDateSelected, taskSelected)
-          }
         }
       })
+      if(i == userSelected.length-1) {
+        var filteredRefs = filterRefs(refsOfUserAndDate, startDateSelected, endDateSelected, taskSelected)
+      }
     })
   }
 }
@@ -690,58 +690,102 @@ function filterRefs(refsOfUserAndDate, startDateSelected, endDateSelected, taskS
 }
 
 function updateRankingForm(filterRefs) {
-  $('#ranking_table').empty()
-  $('#ranking_table').append(
-  '<table border="1">' +
-    '<tr>' + 
-      '<th colspan="8" align="center">Ranking of performance</th>' +
-    '</tr>' + 
-      
-    '<tr>' + 
-      '<th>Rank</th>' +
-      '<th>User</th>' +
-      '<th>Score</th>' + 
-      '<th>Accuracy</th>' + 
-      '<th>Avg RT</th>' +
-    '</tr>')
-  
-  for (let i = 0; i<filterRefs.length; i++) {
-    $('#ranking_table').append(
-      '<tr>' +
-      '<td>' + (i+1) +'</td>' +
-      '<td id =' + (filterRefs[i]+('/1_User Info/1_Name').replace(/ +/g, "")) + '></td>' +
-      '<td id =' + (filterRefs[i]+ 'score') + '></td>' +
-      '<td id =' + (filterRefs[i]+('/3_Cognitive Performance/6_Accuracy').replace(/ +/g, "")) + '></td>' +
-      '<td id =' + (filterRefs[i]+('/3_Cognitive Performance/7_Average Response Time').replace(/ +/g, "")) + '></td>' +
-      '</tr>')
-    
-    UpdateTableWithAttrWithRef(filterRefs[i], '/1_User Info/1_Name', '')
-    UpdateTableWithAttrWithRef(filterRefs[i], '/3_Cognitive Performance/6_Accuracy', '%')
-    UpdateTableWithAttrWithRef(filterRefs[i], '/3_Cognitive Performance/7_Average Response Time', 'ms')
+  //get data
+  GetAttrWithRef(filterRefs)
+  .then((aryUnsortedAttr)=>{
+    aryFilteredWithInvalidScore = aryUnsortedAttr.filter((attr)=>(attr.score !== "invalid"))
+    arySortedAttr = SortAttr(aryFilteredWithInvalidScore)
 
-    if(i == filterRefs.length-1) {
-      $('#ranking_table').append('<table border="1">')
+    htmlTableAttrRow = ""
+    for(let i=0; i<arySortedAttr.length; i++){
+      htmlTableAttrRow = htmlTableAttrRow + 
+      '<tr>' +
+        '<td>' + (i+1) +'</td>' +
+        '<td id =' + (arySortedAttr[i].ref + 'userName') + '></td>' +
+        '<td id =' + (arySortedAttr[i].ref + 'score') + '></td>' +
+        '<td id =' + (arySortedAttr[i].ref + 'accuracy') + '></td>' +
+        '<td id =' + (arySortedAttr[i].ref + 'resTime') + '></td>' +
+        '</tr>'
     }
-  }
+
+    //create ranking table
+    $('#ranking_table').empty()
+    $('#ranking_table').append(
+    '<table border="1">' +
+      '<tr>' + 
+        '<th colspan="8" align="center">Ranking of performance</th>' +
+      '</tr>' + 
+      
+      '<tr>' + 
+        '<th>Rank</th>' +
+        '<th>User</th>' +
+        '<th>Score</th>' + 
+        '<th>Accuracy</th>' + 
+        '<th>Avg RT</th>' +
+      '</tr>' +
+
+      htmlTableAttrRow + 
+
+      '</table>'
+    )
+
+    //fill the ranking table
+    for(let i=0; i<arySortedAttr.length; i++){
+      document.getElementById(arySortedAttr[i].ref + 'userName').innerHTML = arySortedAttr[i].userName;
+      document.getElementById(arySortedAttr[i].ref + 'score').innerHTML = arySortedAttr[i].score;
+      document.getElementById(arySortedAttr[i].ref + 'accuracy').innerHTML = arySortedAttr[i].accuracy;
+      document.getElementById(arySortedAttr[i].ref + 'resTime').innerHTML = arySortedAttr[i].resTime;
+    }
+    });
 }
 
-function UpdateTableWithAttrWithRef(prefix, attr, unit) {
-  var db = firebase.database()
-  var ref = db.ref(prefix).child(attr)
-  ref.once('value', function(snap) {
-    document.getElementById(prefix + (attr.replace(/ +/g, ""))).innerHTML = snap.val() + unit
+function SortAttr(unsortedAttr){
+  return unsortedAttr.sort(function(a,b){
+    return b.score - a.score;
+  });
+}
 
-    if(attr == '/3_Cognitive Performance/7_Average Response Time') {
-      var ref = db.ref(prefix).child('/3_Cognitive Performance/6_Accuracy')
-      ref.once('value', function(accSnap) {
-        if(parseInt(snap.val()) == 0) {
-          document.getElementById(prefix+'score').innerHTML = "invalid"
+function GetAttrWithRef(prefixs){
+  return new Promise(function(resolve){
+    var aryUnsortedAttr = []
+    var db = firebase.database()
+    var getAttrSync = function(prefix, attr, processFunc){
+    return new Promise(function(resolve){
+      var ref = db.ref(prefix).child(attr)
+      ref.once('value', function(snap) {
+        attr = ((processFunc != null) ? processFunc(snap.val()) : snap.val());
+        resolve(attr)
+      })
+    })
+    };
+
+    finishCnt = 0;
+    for (let i = 0; i<prefixs.length; i++) {
+      aryUnsortedAttr.push({ref:prefixs[i]})
+      getAttrSync(prefixs[i], '/1_User Info/1_Name')
+      .then((attr)=>{
+        aryUnsortedAttr[i].userName = attr;
+        return getAttrSync(prefixs[i], '/3_Cognitive Performance/6_Accuracy', function(x){return parseFloat(x).toFixed(1)+'%'});
+      })
+      .then((attr)=>{
+        aryUnsortedAttr[i].accuracy = attr;
+        return getAttrSync(prefixs[i], '/3_Cognitive Performance/7_Average Response Time', function(x){return x+'ms'});
+      })
+      .then(function(attr) {
+        aryUnsortedAttr[i].resTime = attr;
+
+        if(parseInt(aryUnsortedAttr[i].resTime) == 0) {
+          aryUnsortedAttr[i].score = "invalid"
         } else {
-          document.getElementById(prefix+'score').innerHTML = parseInt(accSnap.val()) * 1000 / parseInt(snap.val())
+          aryUnsortedAttr[i].score = parseInt(parseInt(aryUnsortedAttr[i].accuracy) * 1000 / parseInt(aryUnsortedAttr[i].resTime))
+        }
+
+        if(++finishCnt>=prefixs.length){
+          resolve(aryUnsortedAttr);
         }
       })
     }
-  })
+  });
 }
 
 function getUserSelected() {
