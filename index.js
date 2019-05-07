@@ -487,7 +487,9 @@ function formatDate(miliseconds, format){
   var dd = date.getDate();
   var hh = date.getHours();
   var mm = date.getMinutes();
+  if(mm.toString().length<2) { mm = "0" + mm }
   var ss = date.getSeconds();
+  if(ss.toString().length<2) { ss = "0" + ss }
 
   return format.replace("yyyy", yyyy).replace("MM", MM).replace("dd", dd)
     .replace("hh", hh).replace("mm", mm).replace("ss", ss);
