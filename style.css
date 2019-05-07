@@ -4,7 +4,7 @@ body {
   margin: 0px auto;
   font-family: 'Nunito', sans-serif;
   font-size: 16px;
-  text-align: center;
+  /*text-align: center;*/
 }
 
 input, button {
@@ -127,20 +127,51 @@ th {
   padding-bottom: 80px;
 }
 
+#login_div_logo{
+  bottom:5%;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+  height:20%;
+}
+
 .navbar {
   z-index: 1;
-  text-align: center;
   padding-top: 10px;
   padding-bottom: 5px;
   background-color:#fff;
   position: fixed; /* Set the navbar to fixed position */
   top: 0; /* Position the navbar at the top of the page */
   width: 100%; /* Full width */
+  height: 60px;
   display: none;
+  
 }
 
 .nav_content{
-  width:40%;
-  display: inline-block;
+  height:60px;
 }
+
+.nav_logo, .nav_buttons, #nav_user{
+  height: 60px;
+  float: left;
+  display: flex;
+  justify-content: center;
+  align-items: center; 
+}
+
+.nav_logo{
+  padding-left: 10px;
+  padding-right: 5%;
+}
+
+#img_login_logo{ 
+ max-width: 100%;
+ height: auto;
+}
+
+#img_nav_logo{
+  height:100%;
+}
+
 
