@@ -83,7 +83,7 @@ function getRecords() {
 
 function showDetails() {
 
-  var date = ($(this).parent().text().replace("Details", "")) + "/"
+  var date = ($(this).parent().text().replace("Details", "").replace("  ","@")) + "/"
   urlPfx = urlPfx + date;
 
   //This should be done in this order.
@@ -370,7 +370,7 @@ function createMap(){
   routeMap = L.map(document.getElementById('map'), {
     //center: {lat:-34.397, lng:150.644},
     zoom: 13,
-    zoomSnap: 2
+    zoomSnap: 1
   });
 
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
