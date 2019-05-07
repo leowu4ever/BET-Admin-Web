@@ -518,6 +518,10 @@ function createCharts() {
       scales: {
         xAxes: [{
           display: true,
+          scaleLabel: {
+            display: true,
+            labelString: 'Time (mm:ss)'
+          },
           ticks: {
             callback: function(value, index, values){
               return formatDate(value, "mm:ss");
@@ -525,6 +529,10 @@ function createCharts() {
           }
         }],
         yAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Speed (km/h)'
+          },
           ticks: {
             beginAtZero: true,
             callback: function(value, index, values){
@@ -563,6 +571,10 @@ function createCharts() {
       scales: {
         xAxes: [{
           display: true,
+          scaleLabel: {
+            display: true,
+            labelString: 'Time (mm:ss)'
+          },
           ticks: {
             callback: function(value, index, values){
               return formatDate(value, "mm:ss");
@@ -570,6 +582,10 @@ function createCharts() {
           }
         }],
         yAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Res Time (ms)'
+          },
           ticks: {
             beginAtZero: true,
             //callback: function(value, index, values){ return value + "ms"}
