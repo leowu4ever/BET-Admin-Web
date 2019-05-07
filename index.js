@@ -73,7 +73,7 @@ function getRecords() {
         $('#div_users').append(
           '<div style="padding-top: 5px">' + 
             '<button id = ' + btnId + '>Details</button>' +
-          childSnap.key + '</div>'
+          childSnap.key.replace('@', "  ") + '</div>'
           )
         $('#' + btnId).click(showDetails)
       }
@@ -505,11 +505,13 @@ function createCharts() {
     data: {
         labels: ["January", "February", "March", "April", "May", "June", "July"],
         datasets: [{
-            label: "Speed graph",
-            backgroundColor: 'rgb(93, 143, 252)',
-            borderColor:'rgb(93, 143, 252)',
-            fill:false,
-            data: [0, 10, 5, 2, 20, 30, 45],
+          label: "Speed graph",
+          backgroundColor: 'rgb(93, 143, 252)',
+          borderColor:'rgb(93, 143, 252)',
+          fill:false,
+          data: [0, 10, 5, 2, 20, 30, 45],
+          pointRadius: 1.5,
+          borderWidth: 0.6   
         }]
     },
 
@@ -559,11 +561,13 @@ function createCharts() {
     data: {
         labels: ["January", "February", "March", "April", "May", "June", "July"],
         datasets: [{
-            label: "Response time graph",
-            backgroundColor: 'rgb(93, 143, 252)',
-            borderColor:'rgb(93, 143, 252)',
-            fill:false,
-            data: [0, 10, 5, 2, 20, 30, 45],
+          label: "Response time graph",
+          backgroundColor: 'rgb(93, 143, 252)',
+          borderColor:'rgb(93, 143, 252)',
+          fill:false,
+          data: [0, 10, 5, 2, 20, 30, 45],
+          pointRadius: 1.5,
+          borderWidth: 0.6   
         }]
     },
     // Configuration options go here
