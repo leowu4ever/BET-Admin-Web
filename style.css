@@ -148,7 +148,7 @@ th {
   position: fixed; /* Set the navbar to fixed position */
   top: 0; /* Position the navbar at the top of the page */
   width: 100%; /* Full width */
-  height: 53px;
+  /*height: 53px;*/
   display: none;
   border-bottom:2px solid #ddd;
   
@@ -169,11 +169,13 @@ th {
 .nav_logo{
   padding-left: 10px;
   padding-right: 5%;
+  padding-bottom: 3px;
 }
 
 #img_login_logo{ 
  max-width: 100%;
  height: auto;
+ padding:10px;
 }
 
 #img_nav_logo{
