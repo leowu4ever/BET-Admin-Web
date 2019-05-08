@@ -1,5 +1,5 @@
 body {
-  background: #fff;
+  background: rgb(223, 235, 238);
   padding: 0px;
   margin: 0px auto;
   font-family: 'Nunito', sans-serif;
@@ -38,7 +38,7 @@ input, button {
   border: 1px solid #777;
 }
 
-.main-div button, .loggedin-div button, .navbar button {
+.main-div button, .loggedin-div button, .navbar button{
   background: #5d8ffc;
   color: #fff;
   border: 1px solid #5d8ffc;
@@ -48,6 +48,11 @@ input, button {
   -webkit-transition: 0.3s;
   -moz-transition: 0.3s;
   margin-right: 20px
+}
+
+.navbar button {
+  background: transparent;
+  border: 1px solid transparent;
 }
 
 .main-div button:hover, .loggedin-div button:hover, .navbar button:hover {
@@ -139,21 +144,22 @@ th {
   z-index: 1;
   padding-top: 10px;
   padding-bottom: 5px;
-  background-color:#fff;
+  background-color:#008577;
   position: fixed; /* Set the navbar to fixed position */
   top: 0; /* Position the navbar at the top of the page */
   width: 100%; /* Full width */
-  height: 60px;
+  height: 53px;
   display: none;
+  border-bottom:2px solid #ddd;
   
 }
 
 .nav_content{
-  height:60px;
+  height:50px;
 }
 
 .nav_logo, .nav_buttons, #nav_user{
-  height: 60px;
+  height: 50px;
   float: left;
   display: flex;
   justify-content: center;
