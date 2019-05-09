@@ -35,9 +35,6 @@
   </div>
 
   <div id="user_div" class="loggedin-div">
-    <div id="div_users" class="user">
-    </div>
-
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
@@ -62,6 +59,17 @@
       messagingSenderId: "743227343146"
     };
     firebase.initializeApp(config);
+  </script>
+  <script type="text/template" data-template>
+    <div id="-div_id-" class='-div_class-'>
+      <div class="box_header">
+        <div class="box_header_content box_title">-title-</div>
+        <div class="box_header_content box_btn_close" onclick="removeDiv(this.parentNode.parentNode.id)">close</div>
+      </div>
+      <div id="-div_content_id-" class="box_content scrollable">
+        -box_content-
+      </div>
+    </div>
   </script>
   <script src="index.js"></script>
 </body>
