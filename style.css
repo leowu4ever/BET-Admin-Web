@@ -168,6 +168,11 @@ th {
   align-items: center; 
 }
 
+#nav_user{
+  position: absolute;
+  right: 3px;
+}
+
 .nav_logo{
   padding-left: 10px;
   padding-right: 5%;
