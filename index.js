@@ -43,7 +43,7 @@ function logout(){
 }
 
 function removeDiv(divName){
-  $('#'+divName).css('-webkit-animation', 'slide-fade-right 0.4s');
+  $('#'+divName).css('-webkit-animation', 'slide-fade-out 0.4s');
   $('#'+divName).bind('webkitAnimationEnd',function(){
     $('#'+divName).remove();
   });  

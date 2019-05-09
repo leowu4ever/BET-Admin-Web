@@ -318,7 +318,7 @@ th {
   }
 }
 
-@keyframes slide-fade-right {
+@keyframes slide-fade-out {
   0% {
       opacity: 1;
       transform: translateX(0);
