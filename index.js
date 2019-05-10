@@ -50,7 +50,6 @@ function removeDiv(divName){
 }
 
 function getUsers() {
-  $('#user_div').empty()
   var db = firebase.database()
   var count = 0
 
@@ -70,6 +69,7 @@ function getUsers() {
       childSnap.key + '</div>'
     })
     htmlDivUserList = htmlDivUserList.replace(/-box_content-/g, htmlDivUser)
+    $('#user_div').empty()
     $('#user_div').append(htmlDivUserList)
     
     //add onclick
