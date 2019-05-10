@@ -14,18 +14,27 @@
     <button onclick="login()">Log in</button>
   </div>
 
+  <div id="login_div_logo">
+    <img id="img_login_logo" src="resource/logo_uok_colored_transparent.png">
+    </div>
+
   <div id="navigation_bar" class="navbar">
     <div class="nav_content">
-      <button onclick="getUsers()">Show all users</button>
-      <button onclick="showRankingForm()">Ranking</button>
-      <button onclick="logout()">Logout</button>
-      <h id="user_para">Login prompt</h>
-      <hr>
+      <div class="nav_logo">
+        <img id="img_nav_logo" src="resource/logo_uok_white_transparent.png">
+      </div>
+      <div class="nav_buttons">
+        <button class="nav_button" onclick="getUsers()">Show all users</button>
+        <button class="nav_button" onclick="showRankingForm()">Ranking</button>
+        <button class="nav_button" onclick="logout()">Logout</button>
+      </div>
+      <div id="nav_user"><p>Login prompt</p></div>
     </div>
+
+    <!--<hr>-->
   </div>
+
   <div id="user_div" class="loggedin-div">
-    <div id="div_users" class="user">
-    </div>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
@@ -50,6 +59,17 @@
       messagingSenderId: "743227343146"
     };
     firebase.initializeApp(config);
+  </script>
+  <script type="text/template" data-template>
+    <div id="-div_id-" class='-div_class-'>
+      <div class="box_header">
+        <div class="box_header_content box_title">-title-</div>
+        <div class="box_header_content box_btn_close" onclick="removeDiv(this.parentNode.parentNode.id)">X</div>
+      </div>
+      <div id="-div_content_id-" class="box_content scrollable">
+        -box_content-
+      </div>
+    </div>
   </script>
   <script src="index.js"></script>
 </body>

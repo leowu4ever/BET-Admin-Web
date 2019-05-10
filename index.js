@@ -1,23 +1,27 @@
 var testHeading = document.getElementById("testHeading")
+var boxTemplate = $('[data-template]').html();
+var selectedUser = ""
 var urlPfx = ""
 
 firebase.auth().onAuthStateChanged(function(user) {
 
   if (user) {
     document.getElementById("user_div").style.display = "inline-block"
+    document.getElementById("navigation_bar").style.display = "inline-block"
     document.getElementById("login_div").style.display = "none"
-    document.getElementById("navigation_bar").style.display = "block"
+    document.getElementById("login_div_logo").style.display = "none"
 
     var user = firebase.auth().currentUser;
     if(user != null){
       var email_id = user.email
-      document.getElementById("user_para").innerHTML = "Logged in as : " + email_id
+      document.getElementById("nav_user").innerHTML = "Logged in as : " + email_id  
     }
 
   } else {
     document.getElementById("user_div").style.display = "none"
     document.getElementById("navigation_bar").style.display = "none"
     document.getElementById("login_div").style.display = "block"
+    document.getElementById("login_div_logo").style.display = "flex"
   }
 });
 
@@ -33,59 +37,94 @@ function login(){
 }
  
 function logout(){
+  $('#user_div').empty()
   firebase.auth().signOut();
   document.getElementById("password_field").value = "";
 }
 
+function removeDiv(divName){
+  $('#'+divName).css('-webkit-animation', 'slide-fade-out 0.4s');
+  $('#'+divName).bind('webkitAnimationEnd',function(){
+    $('#'+divName).remove();
+  });  
+}
+
 function getUsers() {
-  $('#div_users').empty()
   var db = firebase.database()
   var count = 0
+
+  htmlDivUserList = boxTemplate
+  htmlDivUserList = htmlDivUserList.replace(/-div_id-/g, "div_user_list")
+  .replace(/-div_class-/g, "div_content_box div_slide_right")
+  .replace(/-title-/g, "User List")
+
   db.ref().once('value', function(snap) {
+    htmlDivUser = ""
     snap.forEach(function(childSnap) {
       count = count + 1
       var btnId = "btn_view" + count.toString()
-      $('#div_users').append(
-        '<div style="padding-top: 5px">' + 
-          '<button id = ' + btnId + '>View</button>' + 
-        childSnap.key + '</div>'
-        )
-      $('#' + btnId).click(getRecords)
+      
+      htmlDivUser += '<div class="div_user_row" style="padding-top: 5px">' + 
+      '<button id = ' + btnId + '>View</button>' + 
+      childSnap.key + '</div>'
     })
+    htmlDivUserList = htmlDivUserList.replace(/-box_content-/g, htmlDivUser)
+    $('#user_div').empty()
+    $('#user_div').append(htmlDivUserList)
+    
+    //add onclick
+    for(let i=0; i<=count; i++){
+      $('#' + "btn_view" + i).click(getRecords)
+    }
   })
 }
 
 function getRecords() {
-  $('#div_users').empty()
+  console.log("getRecrds")
   var user = ($(this).parent().text().replace("View", "")) + "/"
   urlPfx = ""
   urlPfx = user
-  //console.debug(urlPfx)
+  selectedUser = urlPfx
+
+  console.log(urlPfx)
   var count = 0
   var db = firebase.database()
+
+  htmlDivRecords = boxTemplate
+  htmlDivRecords = htmlDivRecords.replace(/-div_id-/g, "div_data_list")
+  .replace(/-div_class-/g, "div_content_box div_slide_right")
+  .replace(/-title-/g, "Records")
+
   db.ref("/" + user).once('value', function(snap) {
+    htmlDivRecord = ""
     snap.forEach(function(childSnap) {
       count = count + 1
       var btnId = "btn_detail" + count.toString()
       if(childSnap.key != "storageRef"){ 
-        $('#div_users').append(
-          '<div style="padding-top: 5px">' + 
-            '<button id = ' + btnId + '>Details</button>' +
-          childSnap.key + '</div>'
-          )
-        $('#' + btnId).click(showDetails)
+        htmlDivRecord += '<div class="div_user_row" style="padding-top: 5px">' + 
+        '<button id = ' + btnId + '>Details</button>' +
+      childSnap.key.replace('@', "  ") + '</div>'
       }
     })
+    htmlDivRecords = htmlDivRecords.replace(/-box_content-/g, htmlDivRecord)
+    $('#div_show_data').remove()
+    $('#div_data_list').remove()
+    $('#user_div').append(htmlDivRecords)
+    
+    //add onclick
+    for(let i=0; i<=count; i++){
+      $('#' + "btn_detail" + i).click(showDetails)
+    }
   })
 }
 
 function showDetails() {
 
-  var date = ($(this).parent().text().replace("Details", "")) + "/"
+  var date = ($(this).parent().text().replace("Details", "").replace("  ","@")) + "/"
+  urlPfx = selectedUser
   urlPfx = urlPfx + date;
-
+  console.log(urlPfx)
   //This should be done in this order.
-  createDetailsTable()
   createDiv();
   updateDetailsTable()
   //----------------------------------
@@ -155,56 +194,15 @@ function updateElement(){
   }
 }
 
-function createDiv(){
 
-  $('#div_users').append(
-
-    //for speed graph
-    '<div id="div_speed_graph">' + 
-
-      '<table id="table_speed_graph" border="1">' +
-       '<tr>' + 
-         '<th colspan="3" align="center">Speed Graph</th>' +
-       '</tr>' + 
-      '</table>' +
-      
-      '<canvas id="myChart" style="width: 100% !important;height: 100% !important;"></canvas>' +  
-    
-    '</div>' + 
-    
-    //for response time graph
-    '<div id="div_response_graph">' + 
-
-      '<table id="table_response_graph" border="1">' +
-       '<tr>' + 
-         '<th colspan="3" align="center">Response Time Graph</th>' +
-       '</tr>' + 
-      '</table>' +
-      
-      '<canvas id="myChart2" style="width: 100% !important;height: 100% !important;"></canvas>' +  
-    
-    '</div>' +
-
-    //for training route map
-    '<div id="div_training_route">' + 
-
-      '<table id="table_training_route" border="1">' +
-       '<tr>' + 
-         '<th colspan="3" align="center">Training Route</th>' +
-       '</tr>' + 
-      '</table>' +
-      
-      '<div id="map" style="width: 100% !important; height: 100% !important;"> </div>' +  
-
-    '</div>'
-  )
-}
-
-function createDetailsTable () {
-  $('#div_users').empty()
-  $('#div_users').append(
-
-  '<table border="1">' +
+function createDiv() {
+  $('#div_show_data').remove()
+  htmlDivDetails = boxTemplate
+  htmlDivDetails = htmlDivDetails.replace(/-div_id-/g, "div_show_data")
+  .replace(/-div_class-/g, "div_content_box div_slide_right")
+  .replace(/-title-/g, "Details")
+  .replace(/-div_content_id-/g, "div_content_details")
+  htmlDivDetail = '<table border="1">' +
     '<tr>' + 
       '<th colspan="3" align="center">General info</th>' +
     '</tr>' + 
@@ -288,11 +286,52 @@ function createDetailsTable () {
     '</tr>' +
 
   '</table>' + 
+   
 
   '<hr>' +
 
-  '<br><br>'
-  )
+  '<br><br>' +
+
+    //for speed graph
+    '<div id="div_speed_graph" class="div_content_detail_element">' + 
+
+      '<table id="table_speed_graph" border="1">' +
+       '<tr>' + 
+         '<th colspan="3" align="center">Speed Graph</th>' +
+       '</tr>' + 
+      '</table>' +
+      
+      '<canvas id="myChart" style="width: 100% !important;height: 100% !important;"></canvas>' +  
+    
+    '</div>' + 
+    
+    //for response time graph
+    '<div id="div_response_graph" class="div_content_detail_element">' + 
+
+      '<table id="table_response_graph" border="1">' +
+       '<tr>' + 
+         '<th colspan="3" align="center">Response Time Graph</th>' +
+       '</tr>' + 
+      '</table>' +
+      
+      '<canvas id="myChart2" style="width: 100% !important;height: 100% !important;"></canvas>' +  
+    
+    '</div>' +
+
+    //for training route map
+    '<div id="div_training_route" class="div_content_detail_element">' + 
+
+      '<table id="table_training_route" border="1">' +
+       '<tr>' + 
+         '<th colspan="3" align="center">Training Route</th>' +
+       '</tr>' + 
+      '</table>' +
+      
+      '<div id="map" style="width: 100% !important; height: 100% !important;"> </div>' +  
+    '</div>';
+  
+    htmlDivDetails = htmlDivDetails.replace(/-box_content-/g, htmlDivDetail)
+    $('#user_div').append(htmlDivDetails)
 }
 
 var speedChart;
@@ -368,7 +407,7 @@ function createMap(){
   routeMap = L.map(document.getElementById('map'), {
     //center: {lat:-34.397, lng:150.644},
     zoom: 13,
-    zoomSnap: 2
+    zoomSnap: 1
   });
 
   L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
@@ -485,7 +524,9 @@ function formatDate(miliseconds, format){
   var dd = date.getDate();
   var hh = date.getHours();
   var mm = date.getMinutes();
+  if(mm.toString().length<2) { mm = "0" + mm }
   var ss = date.getSeconds();
+  if(ss.toString().length<2) { ss = "0" + ss }
 
   return format.replace("yyyy", yyyy).replace("MM", MM).replace("dd", dd)
     .replace("hh", hh).replace("mm", mm).replace("ss", ss);
@@ -501,11 +542,13 @@ function createCharts() {
     data: {
         labels: ["January", "February", "March", "April", "May", "June", "July"],
         datasets: [{
-            label: "Speed graph",
-            backgroundColor: 'rgb(93, 143, 252)',
-            borderColor:'rgb(93, 143, 252)',
-            fill:false,
-            data: [0, 10, 5, 2, 20, 30, 45],
+          label: "Speed graph",
+          backgroundColor: 'rgb(93, 143, 252)',
+          borderColor:'rgb(93, 143, 252)',
+          fill:false,
+          data: [0, 10, 5, 2, 20, 30, 45],
+          pointRadius: 1.5,
+          borderWidth: 0.6   
         }]
     },
 
@@ -516,6 +559,10 @@ function createCharts() {
       scales: {
         xAxes: [{
           display: true,
+          scaleLabel: {
+            display: true,
+            labelString: 'Time (mm:ss)'
+          },
           ticks: {
             callback: function(value, index, values){
               return formatDate(value, "mm:ss");
@@ -523,6 +570,10 @@ function createCharts() {
           }
         }],
         yAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Speed (km/h)'
+          },
           ticks: {
             beginAtZero: true,
             callback: function(value, index, values){
@@ -547,11 +598,13 @@ function createCharts() {
     data: {
         labels: ["January", "February", "March", "April", "May", "June", "July"],
         datasets: [{
-            label: "Response time graph",
-            backgroundColor: 'rgb(93, 143, 252)',
-            borderColor:'rgb(93, 143, 252)',
-            fill:false,
-            data: [0, 10, 5, 2, 20, 30, 45],
+          label: "Response time graph",
+          backgroundColor: 'rgb(93, 143, 252)',
+          borderColor:'rgb(93, 143, 252)',
+          fill:false,
+          data: [0, 10, 5, 2, 20, 30, 45],
+          pointRadius: 1.5,
+          borderWidth: 0.6   
         }]
     },
     // Configuration options go here
@@ -561,6 +614,10 @@ function createCharts() {
       scales: {
         xAxes: [{
           display: true,
+          scaleLabel: {
+            display: true,
+            labelString: 'Time (mm:ss)'
+          },
           ticks: {
             callback: function(value, index, values){
               return formatDate(value, "mm:ss");
@@ -568,6 +625,10 @@ function createCharts() {
           }
         }],
         yAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Res Time (ms)'
+          },
           ticks: {
             beginAtZero: true,
             //callback: function(value, index, values){ return value + "ms"}
@@ -589,10 +650,24 @@ function getDBList() {
   })
 }
 
-function showRankingForm() {
 
-  $('#div_users').empty()
-  $('#div_users').append(
+function showRankingForm() {
+  var db = firebase.database()
+  db.ref().once('value', function(snap) {
+    htmlUserList = ''
+    snap.forEach(function(childSnap) {
+      htmlUserList = htmlUserList + '<input type="checkbox" name="' + childSnap.key+ '">' +
+        '   ' + childSnap.key + '<br>'
+    })
+
+    htmlRankingconfig = boxTemplate;
+    htmlRankingconfig = htmlRankingconfig.replace(/-div_id-/g, "div_ranking_config")
+    .replace(/-div_class-/g, "div_content_box div_slide_down")
+    .replace(/-div_content_id-/g, "div_content_ranking_config")
+    .replace(/-title-/g, "Ranking Configuration")
+  
+    $('#user_div').empty()
+    htmlRanking = 
     '<div style="padding-top: 5px">' +
       '<span style="padding-right: 5px">From</span>' +
       '<input type="date" id="ranking_from_date" value="2018-01-01" min="2018-01-01" max="2020-12-31">' +
@@ -613,18 +688,13 @@ function showRankingForm() {
       '<div style="display: inline-block; padding-left: 10px"><button onclick="rankUsers()">Rank</button></div>' +
     '</div>'+
 
-    '<div id=ranking_users_div></div>' +
-    '<hr>' +
+    '<div id=ranking_users_div>' +
+      htmlUserList +  
+    '</div>' +
+    '<hr>';
+    htmlRankingconfig = htmlRankingconfig.replace(/-box_content-/g, htmlRanking)
+    $('#user_div').append(htmlRankingconfig)
 
-    '<div id=ranking_table></div>'
-  )
-
-  var db = firebase.database()
-  db.ref().once('value', function(snap) {
-    snap.forEach(function(childSnap) {
-      $('#ranking_users_div').append('<input type="checkbox" name="' + childSnap.key+ '">' +
-        '   ' + childSnap.key + '<br>')
-    })
   })
 }
 
@@ -690,11 +760,18 @@ function filterRefs(refsOfUserAndDate, startDateSelected, endDateSelected, taskS
 }
 
 function updateRankingForm(filterRefs) {
+  //'<div id=ranking_table></div>'
   //get data
   GetAttrWithRef(filterRefs)
   .then((aryUnsortedAttr)=>{
     aryFilteredWithInvalidScore = aryUnsortedAttr.filter((attr)=>(attr.score !== "invalid"))
     arySortedAttr = SortAttr(aryFilteredWithInvalidScore)
+
+    htmlRankingtable = boxTemplate;
+    htmlRankingtable = htmlRankingtable.replace(/-div_id-/g, "div_ranking_table")
+    .replace(/-div_class-/g, "div_content_box div_slide_down")
+    .replace(/-div_content_id-/g, "div_content_ranking_table")
+    .replace(/-title-/g, "Ranking Table")
 
     htmlTableAttrRow = ""
     for(let i=0; i<arySortedAttr.length; i++){
@@ -709,8 +786,7 @@ function updateRankingForm(filterRefs) {
     }
 
     //create ranking table
-    $('#ranking_table').empty()
-    $('#ranking_table').append(
+    htmlTable = 
     '<table border="1">' +
       '<tr>' + 
         '<th colspan="8" align="center">Ranking of performance</th>' +
@@ -726,8 +802,11 @@ function updateRankingForm(filterRefs) {
 
       htmlTableAttrRow + 
 
-      '</table>'
-    )
+      '</table>';
+    
+    htmlRankingtable = htmlRankingtable.replace(/-box_content-/g, htmlTable)
+    $('#div_ranking_table').remove()
+    $('#user_div').append(htmlRankingtable)
 
     //fill the ranking table
     for(let i=0; i<arySortedAttr.length; i++){
