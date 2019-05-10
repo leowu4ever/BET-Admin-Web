@@ -286,7 +286,6 @@ function createDiv() {
     '</tr>' +
 
   '</table>' + 
-   
 
   '<hr>' +
 
@@ -691,7 +690,7 @@ function showRankingForm() {
     '<div id=ranking_users_div>' +
       htmlUserList +  
     '</div>' +
-    '<hr>';
+    '<br>';
     htmlRankingconfig = htmlRankingconfig.replace(/-box_content-/g, htmlRanking)
     $('#user_div').append(htmlRankingconfig)
 

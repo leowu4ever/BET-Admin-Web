@@ -1,5 +1,5 @@
 body {
-  background: rgb(223, 235, 238);
+  background: rgb(230, 232, 235);
   padding: 0px;
   margin: 0px auto;
   font-family: 'Nunito', sans-serif;
@@ -148,7 +148,7 @@ th {
   z-index: 1;
   padding-top: 10px;
   padding-bottom: 5px;
-  background-color:#008577;
+  background-color:rgb(58, 92, 169);
   position: fixed; /* Set the navbar to fixed position */
   top: 0; /* Position the navbar at the top of the page */
   width: 100%; /* Full width */
@@ -166,11 +166,17 @@ th {
   display: flex;
   justify-content: center;
   align-items: center; 
+  margin-bottom: 5px;
+  margin-top: 5px;
+
 }
 
 #nav_user{
   position: absolute;
   right: 3px;
+  color: white;
+  padding-right: 10px;
+  font-size: 14px
 }
 
 .nav_logo{
@@ -267,7 +273,7 @@ th {
 }
 
 #div_speed_graph, #div_response_graph{
-  /*To resize the size of graphs, adjust this value*/
+  /*To resize the size of graphs, adust this value*/
   height:65%;
 }
 
